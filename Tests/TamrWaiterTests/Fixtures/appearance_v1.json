@@ -1,0 +1,168 @@
+{
+	"$comment": "Looks and wording an app may change (docs/sdk/PLAN.md, Customisation; ADR 0010), in Tamr's brand-kit words. Over the bridge a null resets one field to the restaurant's own; a field left out keeps its value. A value the page does not accept is dropped and the rest apply (`lenient`). Wording never rides on the URL. `urlValue` pairs an appearance with its `appearance=` query value (base64url JSON of the set fields).",
+	"hostToPage": [
+		{
+			"v": 1,
+			"id": "msg_0088",
+			"type": "theme",
+			"ts": 1792310488000,
+			"data": {
+				"scheme": "dark"
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0089",
+			"type": "appearance",
+			"ts": 1792310489000,
+			"data": {
+				"scheme": "auto",
+				"accent": "#1F7A4D",
+				"accentSecondary": "#C8C8C4",
+				"paper": "#FFFFFF",
+				"text": "#131313",
+				"displayFont": "Avenir Next",
+				"uiFont": "Roboto",
+				"corners": "soft",
+				"showHeader": false,
+				"showLogo": true,
+				"showStarters": true,
+				"showBack": true,
+				"showPoweredBy": false,
+				"hideVoice": true
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0090",
+			"type": "appearance",
+			"ts": 1792310490000,
+			"data": {
+				"accent": null,
+				"showHeader": null
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0091",
+			"type": "text",
+			"ts": 1792310491000,
+			"data": {
+				"waiterName": "Céline",
+				"welcomeTitle": "Ahlan!",
+				"welcomeSubtitle": "Ask me anything about the menu",
+				"placeholder": "Ask Céline…",
+				"labels": {
+					"newChat": "Start over",
+					"addToCart": "Add to bag",
+					"checkout": "Go to bag",
+					"callWaiter": "Call a waiter",
+					"thinking": "Thinking…",
+					"tryAgain": "Try again"
+				}
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0092",
+			"type": "text",
+			"ts": 1792310492000,
+			"data": {
+				"welcomeTitle": null
+			}
+		}
+	],
+	"pageToHost": [],
+	"lenient": [
+		{
+			"$comment": "A colour that is not #RRGGBB is dropped; the corners still apply.",
+			"direction": "hostToPage",
+			"message": {
+				"v": 1,
+				"id": "msg_0093",
+				"type": "appearance",
+				"ts": 1792310493000,
+				"data": {
+					"accent": "green",
+					"corners": "round"
+				}
+			},
+			"expectData": {
+				"corners": "round"
+			}
+		},
+		{
+			"$comment": "A font name with CSS in it is dropped.",
+			"direction": "hostToPage",
+			"message": {
+				"v": 1,
+				"id": "msg_0094",
+				"type": "appearance",
+				"ts": 1792310494000,
+				"data": {
+					"uiFont": "Roboto; color: red",
+					"paper": "#FAFAFA"
+				}
+			},
+			"expectData": {
+				"paper": "#FAFAFA"
+			}
+		},
+		{
+			"$comment": "A label over 40 characters is dropped; the title stays.",
+			"direction": "hostToPage",
+			"message": {
+				"v": 1,
+				"id": "msg_0095",
+				"type": "text",
+				"ts": 1792310495000,
+				"data": {
+					"welcomeTitle": "Hi",
+					"labels": {
+						"checkout": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+						"newChat": "New"
+					}
+				}
+			},
+			"expectData": {
+				"welcomeTitle": "Hi",
+				"labels": {
+					"newChat": "New"
+				}
+			}
+		}
+	],
+	"rejected": [
+		{
+			"$comment": "theme has two values; auto lives on appearance.",
+			"v": 1,
+			"id": "msg_0096",
+			"type": "theme",
+			"ts": 1792310496000,
+			"data": {
+				"scheme": "auto"
+			}
+		}
+	],
+	"urlValue": [
+		{
+			"appearance": {
+				"accent": "#1F7A4D",
+				"corners": "soft"
+			},
+			"value": "eyJhY2NlbnQiOiIjMUY3QTREIiwiY29ybmVycyI6InNvZnQifQ"
+		},
+		{
+			"appearance": {
+				"scheme": "dark",
+				"uiFont": "Noto Sans Arabic"
+			},
+			"value": "eyJzY2hlbWUiOiJkYXJrIiwidWlGb250IjoiTm90byBTYW5zIEFyYWJpYyJ9"
+		},
+		{
+			"appearance": {},
+			"value": null,
+			"$comment": "Nothing set: no appearance= param at all."
+		}
+	]
+}

@@ -1,0 +1,152 @@
+{
+	"$comment": "Diner identity over the bridge (docs/sdk/PLAN.md, Identity and auth; ADR 0008). The first token or code rides in the URL fragment (host_v1.json); after that the page asks with identity.request and the app answers with identity.token, replyTo set. Tokens and codes here are placeholders: never log real ones.",
+	"pageToHost": [
+		{
+			"v": 1,
+			"id": "idreq_0001",
+			"type": "identity.request",
+			"ts": 1792310425000,
+			"data": {
+				"reason": "first_open"
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0026",
+			"type": "identity.request",
+			"ts": 1792310426000,
+			"data": {
+				"reason": "expired"
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0027",
+			"type": "identity.request",
+			"ts": 1792310427000,
+			"data": {
+				"reason": "refused"
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0028",
+			"type": "reply",
+			"ts": 1792310428000,
+			"data": {
+				"ok": true
+			},
+			"replyTo": "clear_0001"
+		}
+	],
+	"hostToPage": [
+		{
+			"v": 1,
+			"id": "msg_0029",
+			"type": "identity.token",
+			"ts": 1792310429000,
+			"data": {
+				"token": "aaaa.bbbb.cccc"
+			},
+			"replyTo": "idreq_0001"
+		},
+		{
+			"v": 1,
+			"id": "msg_0030",
+			"type": "identity.token",
+			"ts": 1792310430000,
+			"data": {
+				"code": "lc_9f2c1b7a4e"
+			},
+			"replyTo": "idreq_0001"
+		},
+		{
+			"v": 1,
+			"id": "msg_0031",
+			"type": "reply",
+			"ts": 1792310431000,
+			"data": {
+				"ok": false,
+				"error": {
+					"code": "failed",
+					"message": "onIdentityRequest returned nothing"
+				}
+			},
+			"replyTo": "idreq_0001"
+		},
+		{
+			"v": 1,
+			"id": "clear_0001",
+			"type": "identity.clear",
+			"ts": 1792310432000,
+			"data": {}
+		}
+	],
+	"rejected": [
+		{
+			"$comment": "A token and a code together.",
+			"v": 1,
+			"id": "msg_0033",
+			"type": "identity.token",
+			"ts": 1792310433000,
+			"data": {
+				"token": "a.b.c",
+				"code": "lc_1"
+			}
+		},
+		{
+			"$comment": "Neither.",
+			"v": 1,
+			"id": "msg_0034",
+			"type": "identity.token",
+			"ts": 1792310434000,
+			"data": {}
+		},
+		{
+			"$comment": "An empty token.",
+			"v": 1,
+			"id": "msg_0035",
+			"type": "identity.token",
+			"ts": 1792310435000,
+			"data": {
+				"token": ""
+			}
+		},
+		{
+			"$comment": "No reason: a missing value still fails.",
+			"v": 1,
+			"id": "open_0002",
+			"type": "identity.request",
+			"ts": 1792310400002,
+			"data": {}
+		},
+		{
+			"$comment": "A reason that is not a string still fails.",
+			"v": 1,
+			"id": "open_0003",
+			"type": "identity.request",
+			"ts": 1792310400003,
+			"data": {
+				"reason": 3
+			}
+		}
+	],
+	"lenient": [
+		{
+			"$comment": "A reason this SDK does not know yet parses as unknown (open list, #430).",
+			"direction": "pageToHost",
+			"message": {
+				"v": 1,
+				"id": "open_0001",
+				"type": "identity.request",
+				"ts": 1792310400001,
+				"data": {
+					"reason": "because"
+				}
+			},
+			"expectData": {
+				"reason": "unknown"
+			}
+		}
+	]
+}

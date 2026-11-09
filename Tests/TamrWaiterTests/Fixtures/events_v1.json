@@ -1,0 +1,521 @@
+{
+	"$comment": "What happened, for the app's screen (docs/sdk/PLAN.md, Bridge protocol). Each comes from a server-side state change: order.placed when the diner sends the table's list (not add_to_table), payment.completed when a Tamr Pay payment is PAID (not offer_payment). No secret and nothing the diner typed: no booking manage link, name, phone or email, and never the waiter's free-text escalation reason.",
+	"pageToHost": [
+		{
+			"v": 1,
+			"id": "msg_0055",
+			"type": "order.placed",
+			"ts": 1792310455000,
+			"data": {
+				"orderId": "ord_0001",
+				"number": 17,
+				"status": "sent",
+				"branch": "achrafieh",
+				"table": "12",
+				"currency": "LBP",
+				"subtotal": "355000",
+				"lines": [
+					{
+						"dishId": "dish_kafta",
+						"externalId": "SKU-1042",
+						"title": "Kafta plate",
+						"variantLabel": null,
+						"quantity": 2,
+						"unitPrice": "145000"
+					},
+					{
+						"dishId": null,
+						"externalId": null,
+						"title": "Fattoush",
+						"variantLabel": "Large",
+						"quantity": 1,
+						"unitPrice": "65000"
+					}
+				]
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0056",
+			"type": "payment.completed",
+			"ts": 1792310456000,
+			"data": {
+				"paymentId": "pay_0001",
+				"amount": "355000",
+				"currency": "LBP",
+				"orderId": "ord_0001"
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0057",
+			"type": "payment.completed",
+			"ts": 1792310457000,
+			"data": {
+				"paymentId": "pay_0002",
+				"amount": "2400",
+				"currency": "USD",
+				"orderId": null
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0058",
+			"type": "payment.open",
+			"ts": 1792310458000,
+			"data": {
+				"paymentId": "pay_0002",
+				"url": "https://pay.whish.money/checkout/7f3a9c21"
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0058",
+			"type": "booking.made",
+			"ts": 1792310458000,
+			"data": {
+				"bookingId": "res_0001",
+				"status": "confirmed",
+				"branch": "achrafieh",
+				"date": "2026-10-24",
+				"time": "20:30",
+				"partySize": 4
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0059",
+			"type": "booking.made",
+			"ts": 1792310459000,
+			"data": {
+				"bookingId": "res_0002",
+				"status": "requested",
+				"branch": "achrafieh",
+				"date": "2026-10-31",
+				"time": "13:00",
+				"partySize": 14
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0060",
+			"type": "booking.changed",
+			"ts": 1792310460000,
+			"data": {
+				"bookingId": "res_0001",
+				"status": "cancelled",
+				"branch": "achrafieh",
+				"date": "2026-10-24",
+				"time": "20:30",
+				"partySize": 4
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0061",
+			"type": "waiter.called",
+			"ts": 1792310461000,
+			"data": {
+				"source": "request",
+				"kind": "check",
+				"table": "12"
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0062",
+			"type": "waiter.called",
+			"ts": 1792310462000,
+			"data": {
+				"source": "escalation",
+				"reason": "allergen_severe",
+				"urgency": "high",
+				"table": null
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0063",
+			"type": "open_dish",
+			"ts": 1792310463000,
+			"data": {
+				"dishId": "dish_kafta",
+				"externalId": "SKU-1042",
+				"variantId": null
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0064",
+			"type": "open_dish",
+			"ts": 1792310464000,
+			"data": {
+				"dishId": "dish_bowl",
+				"externalId": null,
+				"variantId": "var_large"
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0599",
+			"type": "order.placed",
+			"ts": 1792310459900,
+			"data": {
+				"orderId": "ord_0599",
+				"number": 23,
+				"status": "sent",
+				"branch": "hamra",
+				"table": null,
+				"currency": "LBP",
+				"subtotal": "290000",
+				"lines": [
+					{
+						"dishId": "dish_kafta",
+						"externalId": "SKU-1042",
+						"title": "Kafta plate",
+						"variantLabel": null,
+						"quantity": 2,
+						"unitPrice": "145000"
+					}
+				],
+				"fulfilment": "pickup",
+				"pickupAt": null,
+				"pickupCode": "4821"
+			}
+		}
+	],
+	"hostToPage": [],
+	"rejected": [
+		{
+			"$comment": "A decimal amount.",
+			"v": 1,
+			"id": "msg_0065",
+			"type": "payment.completed",
+			"ts": 1792310465000,
+			"data": {
+				"paymentId": "pay_1",
+				"amount": "12.50",
+				"currency": "USD",
+				"orderId": null
+			}
+		},
+		{
+			"$comment": "A 12-hour time.",
+			"v": 1,
+			"id": "msg_0066",
+			"type": "booking.made",
+			"ts": 1792310466000,
+			"data": {
+				"bookingId": "res_1",
+				"status": "confirmed",
+				"branch": "achrafieh",
+				"date": "2026-10-24",
+				"time": "8pm",
+				"partySize": 2
+			}
+		},
+		{
+			"$comment": "An order with no lines.",
+			"v": 1,
+			"id": "msg_0069",
+			"type": "order.placed",
+			"ts": 1792310469000,
+			"data": {
+				"orderId": "ord_1",
+				"number": 1,
+				"status": "sent",
+				"branch": "achrafieh",
+				"table": null,
+				"currency": "USD",
+				"subtotal": "0",
+				"lines": []
+			}
+		},
+		{
+			"$comment": "An order without a status: a missing value still fails.",
+			"v": 1,
+			"id": "open_0025",
+			"type": "order.placed",
+			"ts": 1792310400025,
+			"data": {
+				"orderId": "ord_0001",
+				"number": 17,
+				"branch": "achrafieh",
+				"table": "12",
+				"currency": "LBP",
+				"subtotal": "355000",
+				"lines": [
+					{
+						"dishId": "dish_kafta",
+						"externalId": "SKU-1042",
+						"title": "Kafta plate",
+						"variantLabel": null,
+						"quantity": 2,
+						"unitPrice": "145000"
+					},
+					{
+						"dishId": null,
+						"externalId": null,
+						"title": "Fattoush",
+						"variantLabel": "Large",
+						"quantity": 1,
+						"unitPrice": "65000"
+					}
+				]
+			}
+		},
+		{
+			"$comment": "A status that is not a string still fails.",
+			"v": 1,
+			"id": "open_0026",
+			"type": "booking.made",
+			"ts": 1792310400026,
+			"data": {
+				"bookingId": "res_1",
+				"status": 1,
+				"branch": "achrafieh",
+				"date": "2026-10-24",
+				"time": "20:00",
+				"partySize": 2
+			}
+		},
+		{
+			"$comment": "No source.",
+			"v": 1,
+			"id": "open_0027",
+			"type": "waiter.called",
+			"ts": 1792310400027,
+			"data": {
+				"kind": "check",
+				"table": null
+			}
+		},
+		{
+			"$comment": "A payment.open with no link.",
+			"v": 1,
+			"id": "msg_0070",
+			"type": "payment.open",
+			"ts": 1792310470000,
+			"data": {
+				"paymentId": "pay_1"
+			}
+		},
+		{
+			"$comment": "A payment.open whose link isn't an address.",
+			"v": 1,
+			"id": "msg_0071",
+			"type": "payment.open",
+			"ts": 1792310471000,
+			"data": {
+				"paymentId": "pay_1",
+				"url": "not a link"
+			}
+		}
+	],
+	"lenient": [
+		{
+			"$comment": "A booking status this SDK does not know parses as unknown.",
+			"direction": "pageToHost",
+			"message": {
+				"v": 1,
+				"id": "open_0020",
+				"type": "booking.changed",
+				"ts": 1792310400020,
+				"data": {
+					"bookingId": "res_1",
+					"status": "seated",
+					"branch": "achrafieh",
+					"date": "2026-10-24",
+					"time": "20:00",
+					"partySize": 2
+				}
+			},
+			"expectData": {
+				"bookingId": "res_1",
+				"status": "unknown",
+				"branch": "achrafieh",
+				"date": "2026-10-24",
+				"time": "20:00",
+				"partySize": 2
+			}
+		},
+		{
+			"$comment": "A request kind this SDK does not know parses as other.",
+			"direction": "pageToHost",
+			"message": {
+				"v": 1,
+				"id": "open_0021",
+				"type": "waiter.called",
+				"ts": 1792310400021,
+				"data": {
+					"source": "request",
+					"kind": "valet",
+					"table": "12"
+				}
+			},
+			"expectData": {
+				"source": "request",
+				"kind": "other",
+				"table": "12"
+			}
+		},
+		{
+			"$comment": "A source this SDK does not know parses as unknown; the message still arrives.",
+			"direction": "pageToHost",
+			"message": {
+				"v": 1,
+				"id": "open_0022",
+				"type": "waiter.called",
+				"ts": 1792310400022,
+				"data": {
+					"source": "kitchen_display",
+					"table": null
+				}
+			},
+			"expectData": {
+				"source": "unknown",
+				"table": null
+			}
+		},
+		{
+			"$comment": "Escalation reason and urgency the SDK does not know.",
+			"direction": "pageToHost",
+			"message": {
+				"v": 1,
+				"id": "open_0023",
+				"type": "waiter.called",
+				"ts": 1792310400023,
+				"data": {
+					"source": "escalation",
+					"reason": "noise",
+					"urgency": "critical",
+					"table": null
+				}
+			},
+			"expectData": {
+				"source": "escalation",
+				"reason": "unknown_other",
+				"urgency": "unknown",
+				"table": null
+			}
+		},
+		{
+			"$comment": "An order status this SDK does not know parses as unknown.",
+			"direction": "pageToHost",
+			"message": {
+				"v": 1,
+				"id": "open_0024",
+				"type": "order.placed",
+				"ts": 1792310400024,
+				"data": {
+					"orderId": "ord_0001",
+					"number": 17,
+					"status": "on_hold",
+					"branch": "achrafieh",
+					"table": "12",
+					"currency": "LBP",
+					"subtotal": "355000",
+					"lines": [
+						{
+							"dishId": "dish_kafta",
+							"externalId": "SKU-1042",
+							"title": "Kafta plate",
+							"variantLabel": null,
+							"quantity": 2,
+							"unitPrice": "145000"
+						},
+						{
+							"dishId": null,
+							"externalId": null,
+							"title": "Fattoush",
+							"variantLabel": "Large",
+							"quantity": 1,
+							"unitPrice": "65000"
+						}
+					]
+				}
+			},
+			"expectData": {
+				"orderId": "ord_0001",
+				"number": 17,
+				"status": "unknown",
+				"branch": "achrafieh",
+				"table": "12",
+				"currency": "LBP",
+				"subtotal": "355000",
+				"lines": [
+					{
+						"dishId": "dish_kafta",
+						"externalId": "SKU-1042",
+						"title": "Kafta plate",
+						"variantLabel": null,
+						"quantity": 2,
+						"unitPrice": "145000"
+					},
+					{
+						"dishId": null,
+						"externalId": null,
+						"title": "Fattoush",
+						"variantLabel": "Large",
+						"quantity": 1,
+						"unitPrice": "65000"
+					}
+				]
+			}
+		},
+		{
+			"$comment": "A way of reaching the diner this SDK does not know (#599) parses as unknown.",
+			"direction": "pageToHost",
+			"message": {
+				"v": 1,
+				"id": "open_0599",
+				"type": "order.placed",
+				"ts": 1792310400024,
+				"data": {
+					"orderId": "ord_0599",
+					"number": 23,
+					"status": "sent",
+					"branch": "hamra",
+					"table": null,
+					"currency": "LBP",
+					"subtotal": "290000",
+					"lines": [
+						{
+							"dishId": "dish_kafta",
+							"externalId": "SKU-1042",
+							"title": "Kafta plate",
+							"variantLabel": null,
+							"quantity": 2,
+							"unitPrice": "145000"
+						}
+					],
+					"fulfilment": "delivery",
+					"pickupAt": null,
+					"pickupCode": "4821"
+				}
+			},
+			"expectData": {
+				"orderId": "ord_0599",
+				"number": 23,
+				"status": "sent",
+				"branch": "hamra",
+				"table": null,
+				"currency": "LBP",
+				"subtotal": "290000",
+				"lines": [
+					{
+						"dishId": "dish_kafta",
+						"externalId": "SKU-1042",
+						"title": "Kafta plate",
+						"variantLabel": null,
+						"quantity": 2,
+						"unitPrice": "145000"
+					}
+				],
+				"fulfilment": "unknown",
+				"pickupAt": null,
+				"pickupCode": "4821"
+			}
+		}
+	]
+}

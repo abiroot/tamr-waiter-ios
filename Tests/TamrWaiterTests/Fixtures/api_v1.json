@@ -1,0 +1,2397 @@
+{
+	"$comment": "Client and Server API payloads docs/sdk/PLAN.md defines (Identity and auth; Ordering handoff). Routes under /api/v1 (ADR 0003). The session token itself travels in the x-tamr-session header, never in a body.",
+	"dinerTokenClaims": {
+		"valid": [
+			{
+				"iss": "key_01",
+				"aud": "tamr:cedar-house",
+				"sub": "user-88213",
+				"branch": "achrafieh",
+				"locale": "ar",
+				"iat": 1792310400,
+				"exp": 1792310700,
+				"jti": "b7e1c9a2-0001"
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "An audience that is not tamr:{org}.",
+				"iss": "key_01",
+				"aud": "cedar-house",
+				"sub": "u",
+				"iat": 1,
+				"exp": 2,
+				"jti": "abcdefgh"
+			}
+		]
+	},
+	"sessionExchangeRequest": {
+		"valid": [
+			{
+				"token": "aaaa.bbbb.cccc",
+				"platform": "flutter",
+				"sdk": "1.0.0"
+			},
+			{
+				"code": "lc_9f2c1b7a4e"
+			},
+			{
+				"$comment": "A guest: no token or code, the page's device id (a guest-mode key only).",
+				"device": "dev_7f3a9c2e1b5d",
+				"platform": "web"
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "Both.",
+				"token": "a.b.c",
+				"code": "lc_1"
+			},
+			{
+				"$comment": "Neither, and no device id.",
+				"platform": "web"
+			},
+			{
+				"$comment": "A device id too short to tell devices apart.",
+				"device": "abc"
+			}
+		]
+	},
+	"sessionExchangeResponse": {
+		"valid": [
+			{
+				"branch": "achrafieh",
+				"conversationId": "cm1conv0001",
+				"locale": "ar",
+				"expiresAt": "2026-10-24T08:00:00Z"
+			},
+			{
+				"branch": null,
+				"conversationId": null,
+				"locale": null,
+				"expiresAt": "2026-10-24T08:00:00Z"
+			}
+		],
+		"rejected": []
+	},
+	"launchCodeRequest": {
+		"valid": [
+			{
+				"externalUserId": "user-88213",
+				"branch": "achrafieh"
+			},
+			{
+				"externalUserId": "user-88213"
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No user.",
+				"branch": "achrafieh"
+			}
+		]
+	},
+	"launchCodeResponse": {
+		"valid": [
+			{
+				"code": "lc_9f2c1b7a4e",
+				"expiresAt": "2026-10-23T12:05:00Z"
+			}
+		],
+		"rejected": []
+	},
+	"eraseUserResponse": {
+		"valid": [
+			{
+				"erased": true
+			},
+			{
+				"$comment": "Nothing was held for that user; erasing again is safe.",
+				"erased": false
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "Not a boolean.",
+				"erased": "yes"
+			},
+			{
+				"$comment": "Missing."
+			}
+		]
+	},
+	"externalIdsRequest": {
+		"valid": [
+			{
+				"refs": [
+					{
+						"kind": "dish",
+						"tamrId": "dish_kafta",
+						"externalId": "SKU-1042"
+					},
+					{
+						"kind": "variant",
+						"tamrId": "var_large",
+						"externalId": "BOWL-L",
+						"branch": "achrafieh"
+					},
+					{
+						"kind": "option",
+						"tamrId": "opt_rice",
+						"externalId": null
+					}
+				]
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "A kind Tamr has no id for.",
+				"refs": [
+					{
+						"kind": "table",
+						"tamrId": "t1",
+						"externalId": "T1"
+					}
+				]
+			},
+			{
+				"$comment": "Nothing to set.",
+				"refs": []
+			}
+		]
+	},
+	"externalIdsResponse": {
+		"valid": [
+			{
+				"set": 2,
+				"removed": 1
+			},
+			{
+				"$comment": "A repeat of the same request changes nothing and still says what it set.",
+				"set": 2,
+				"removed": 0
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "Counts are whole numbers.",
+				"set": -1,
+				"removed": 0
+			},
+			{
+				"$comment": "Missing removed.",
+				"set": 2
+			}
+		]
+	},
+	"externalIdsRejection": {
+		"valid": [
+			{
+				"rows": [
+					{
+						"index": 0,
+						"reason": "unknown_dish"
+					},
+					{
+						"index": 3,
+						"reason": "unknown_branch"
+					}
+				]
+			},
+			{
+				"$comment": "A reason this SDK has never seen reads as other.",
+				"rows": [
+					{
+						"index": 1,
+						"reason": "retired_menu"
+					}
+				]
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "A rejection names at least one row.",
+				"rows": []
+			},
+			{
+				"$comment": "Index from 0.",
+				"rows": [
+					{
+						"index": -1,
+						"reason": "duplicate"
+					}
+				]
+			}
+		]
+	},
+	"orderIngestRequest": {
+		"valid": [
+			{
+				"externalOrderId": "EXT-ORDER-88",
+				"externalUserId": "user-88213",
+				"branch": "achrafieh",
+				"mode": "delivery",
+				"status": "completed",
+				"currency": "LBP",
+				"total": "355000",
+				"placedAt": "2026-10-23T11:40:00Z",
+				"lines": [
+					{
+						"externalId": "SKU-1042",
+						"title": "Kafta plate",
+						"quantity": 2,
+						"unitPrice": "145000"
+					},
+					{
+						"externalId": "BOWL",
+						"variantExternalId": "BOWL-L",
+						"optionExternalIds": ["CHK", "HUM"],
+						"title": "Build your bowl",
+						"quantity": 1,
+						"unitPrice": "320000"
+					}
+				]
+			},
+			{
+				"$comment": "A host whose cart keeps Tamr's ids (no mapping set).",
+				"externalOrderId": "EXT-ORDER-89",
+				"externalUserId": "user-88213",
+				"status": "placed",
+				"currency": "USD",
+				"total": "1350",
+				"placedAt": "2026-10-23T12:10:00Z",
+				"lines": [
+					{
+						"dishId": "dish_lemonade",
+						"title": "Mint lemonade",
+						"quantity": 3,
+						"unitPrice": "450"
+					},
+					{
+						"dishId": "dish_bowl",
+						"variantId": "var_large",
+						"optionIds": ["opt_chicken", "opt_rice"],
+						"title": "Build your bowl",
+						"quantity": 1,
+						"unitPrice": "0"
+					}
+				]
+			},
+			{
+				"$comment": "A set (#560) with its picks, by the host's ids and by Tamr's.",
+				"externalOrderId": "EXT-ORDER-92",
+				"externalUserId": "user-88213",
+				"branch": "achrafieh",
+				"mode": "dine_in",
+				"status": "placed",
+				"currency": "LBP",
+				"total": "610000",
+				"placedAt": "2026-10-23T12:40:00Z",
+				"lines": [
+					{
+						"externalId": "MEZZE-SET",
+						"title": "Mezze for two",
+						"quantity": 1,
+						"unitPrice": "610000",
+						"picks": [
+							{
+								"externalId": "SKU-HUMMUS",
+								"count": 1
+							},
+							{
+								"externalId": "SKU-KIBBEH",
+								"variantExternalId": "SKU-KIBBEH-6",
+								"count": 1
+							},
+							{
+								"pickId": "pick_fattoush",
+								"count": 2
+							}
+						]
+					}
+				]
+			},
+			{
+				"$comment": "Refunded later; lines by either id in one order.",
+				"externalOrderId": "EXT-ORDER-90",
+				"externalUserId": "user-88213",
+				"status": "refunded",
+				"currency": "LBP",
+				"total": "145000",
+				"placedAt": "2026-10-23T12:20:00Z",
+				"lines": [
+					{
+						"externalId": "SKU-1042",
+						"title": "Kafta plate",
+						"quantity": 1,
+						"unitPrice": "145000"
+					},
+					{
+						"dishId": "dish_fattoush",
+						"title": "Fattoush",
+						"quantity": 1,
+						"unitPrice": "0"
+					}
+				]
+			},
+			{
+				"$comment": "A later change of the same order: replaces its status and lines.",
+				"externalOrderId": "EXT-ORDER-88",
+				"externalUserId": "user-88213",
+				"branch": "achrafieh",
+				"status": "refunded",
+				"currency": "LBP",
+				"total": "355000",
+				"placedAt": "2026-10-23T11:40:00Z",
+				"updatedAt": "2026-10-23T13:05:00Z",
+				"lines": [
+					{
+						"externalId": "SKU-1042",
+						"title": "Kafta plate",
+						"quantity": 2,
+						"unitPrice": "145000"
+					}
+				]
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "A decimal total.",
+				"externalOrderId": "X",
+				"externalUserId": "u",
+				"status": "placed",
+				"currency": "USD",
+				"total": "24.00",
+				"placedAt": "2026-10-23T11:40:00Z",
+				"lines": [
+					{
+						"externalId": "A",
+						"title": "A",
+						"quantity": 1,
+						"unitPrice": "100"
+					}
+				]
+			},
+			{
+				"$comment": "A line named by both ids.",
+				"externalOrderId": "X",
+				"externalUserId": "u",
+				"status": "placed",
+				"currency": "USD",
+				"total": "100",
+				"placedAt": "2026-10-23T11:40:00Z",
+				"lines": [
+					{
+						"dishId": "dish_kafta",
+						"externalId": "SKU-1042",
+						"title": "Kafta plate",
+						"quantity": 1,
+						"unitPrice": "100"
+					}
+				]
+			},
+			{
+				"$comment": "A line named by neither.",
+				"externalOrderId": "X",
+				"externalUserId": "u",
+				"status": "placed",
+				"currency": "USD",
+				"total": "100",
+				"placedAt": "2026-10-23T11:40:00Z",
+				"lines": [
+					{
+						"title": "Kafta plate",
+						"quantity": 1,
+						"unitPrice": "100"
+					}
+				]
+			},
+			{
+				"$comment": "A table-order status: ingest has its own list.",
+				"externalOrderId": "X",
+				"externalUserId": "u",
+				"status": "sent",
+				"currency": "USD",
+				"total": "100",
+				"placedAt": "2026-10-23T11:40:00Z",
+				"lines": [
+					{
+						"externalId": "A",
+						"title": "A",
+						"quantity": 1,
+						"unitPrice": "100"
+					}
+				]
+			},
+			{
+				"$comment": "A pick named by both ids.",
+				"externalOrderId": "X",
+				"externalUserId": "u",
+				"status": "placed",
+				"currency": "USD",
+				"total": "100",
+				"placedAt": "2026-10-23T11:40:00Z",
+				"lines": [
+					{
+						"externalId": "SET",
+						"title": "Set",
+						"quantity": 1,
+						"unitPrice": "100",
+						"picks": [
+							{
+								"pickId": "pick_a",
+								"externalId": "A",
+								"count": 1
+							}
+						]
+					}
+				]
+			},
+			{
+				"$comment": "A mode the SDK doesn't have.",
+				"externalOrderId": "X",
+				"externalUserId": "u",
+				"mode": "drive_through",
+				"status": "placed",
+				"currency": "USD",
+				"total": "100",
+				"placedAt": "2026-10-23T11:40:00Z",
+				"lines": [
+					{
+						"externalId": "A",
+						"title": "A",
+						"quantity": 1,
+						"unitPrice": "100"
+					}
+				]
+			}
+		]
+	},
+	"orderIngestResponse": {
+		"valid": [
+			{
+				"orderId": "aord_0001",
+				"externalOrderId": "EXT-ORDER-88",
+				"status": "completed",
+				"updatedAt": "2026-10-23T11:40:00.000Z",
+				"currencyMismatch": false,
+				"lines": [
+					{
+						"dishId": "dish_kafta",
+						"mapped": true
+					},
+					{
+						"dishId": null,
+						"mapped": false
+					}
+				]
+			},
+			{
+				"$comment": "An order in a currency the menus don't price in: kept, flagged, never converted.",
+				"orderId": "aord_0002",
+				"externalOrderId": "EXT-ORDER-91",
+				"status": "placed",
+				"updatedAt": "2026-10-23T12:30:00.000Z",
+				"currencyMismatch": true,
+				"lines": [
+					{
+						"dishId": "dish_kafta",
+						"mapped": true
+					}
+				]
+			},
+			{
+				"$comment": "A status this client doesn't know yet: it reads as placed (an open list).",
+				"orderId": "aord_0004",
+				"externalOrderId": "EXT-ORDER-95",
+				"status": "accepted",
+				"updatedAt": "2026-10-23T13:00:00.000Z",
+				"currencyMismatch": false,
+				"lines": [
+					{
+						"dishId": "dish_kafta",
+						"mapped": true
+					}
+				]
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No lines.",
+				"orderId": "aord_0003",
+				"externalOrderId": "X",
+				"status": "placed",
+				"updatedAt": "2026-10-23T12:30:00.000Z",
+				"currencyMismatch": false,
+				"lines": []
+			}
+		]
+	},
+	"menuResponse": {
+		"valid": [
+			{
+				"menu": {
+					"name": "Dinner",
+					"locale": "en",
+					"currency": "USD"
+				},
+				"categories": [
+					{
+						"name": "Mezze",
+						"dishes": [
+							{
+								"dishId": "cmdish0001",
+								"name": "Grilled halloumi",
+								"price": "1200",
+								"currency": "USD",
+								"imageUrl": "https://tamr.link/image-proxy/media/halloumi.webp",
+								"calories": 420,
+								"proteinGrams": 24,
+								"carbsGrams": 8,
+								"fatGrams": 31,
+								"allergens": ["dairy"],
+								"dietaryTags": ["vegetarian"],
+								"available": true,
+								"externalId": "SKU-HALLOUMI",
+								"description": "Grilled, with za'atar.",
+								"sizes": [
+									{
+										"variantId": "9b1c2d3e-0001",
+										"label": "Large",
+										"price": "1600",
+										"externalId": null
+									}
+								],
+								"choices": [
+									{
+										"name": "Sauce",
+										"min": 0,
+										"max": 1,
+										"options": [
+											{
+												"optionId": "9b1c2d3e-0002",
+												"name": "Garlic",
+												"price": null,
+												"externalId": null
+											}
+										]
+									}
+								]
+							}
+						]
+					}
+				]
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "A price as a number, not minor units as a string.",
+				"menu": {
+					"name": "Dinner",
+					"locale": "en",
+					"currency": "USD"
+				},
+				"categories": [
+					{
+						"name": "Mezze",
+						"dishes": [
+							{
+								"dishId": "cmdish0001",
+								"name": "Grilled halloumi",
+								"price": 12.0,
+								"currency": "USD",
+								"imageUrl": "https://tamr.link/image-proxy/media/halloumi.webp",
+								"calories": 420,
+								"proteinGrams": 24,
+								"carbsGrams": 8,
+								"fatGrams": 31,
+								"allergens": ["dairy"],
+								"dietaryTags": ["vegetarian"],
+								"available": true,
+								"externalId": "SKU-HALLOUMI",
+								"description": null,
+								"sizes": [],
+								"choices": []
+							}
+						]
+					}
+				]
+			}
+		]
+	},
+	"chatRequest": {
+		"valid": [
+			{
+				"message": "Something light without dairy?"
+			},
+			{
+				"message": "And for dessert?",
+				"conversationId": "cmconv0001",
+				"branch": "achrafieh",
+				"mode": "pickup",
+				"locale": "ar",
+				"restrictions": {
+					"avoidAllergens": ["dairy", "nuts"],
+					"keepDiets": ["halal"]
+				}
+			},
+			{
+				"$comment": "The app takes the waiter's proposals and its cart is empty (#438).",
+				"message": "Add two kafta plates",
+				"mode": "delivery",
+				"cart": []
+			},
+			{
+				"$comment": "What the app's cart holds, matched to Tamr's dishes (#438).",
+				"message": "What's in my cart?",
+				"cart": [
+					{
+						"dishId": "dish_kafta",
+						"quantity": 2
+					},
+					{
+						"dishId": "dish_bowl",
+						"variantId": "var_large",
+						"optionIds": ["opt_chicken", "opt_rice"],
+						"quantity": 1
+					}
+				]
+			},
+			{
+				"$comment": "The app's cart holds a set with its picks (#560), as /v1/cart/match answered it.",
+				"message": "Anything to go with it?",
+				"mode": "delivery",
+				"cart": [
+					{
+						"dishId": "dish_sushi_set",
+						"optionIds": [],
+						"quantity": 1,
+						"picks": [
+							{
+								"pickId": "pk_california",
+								"count": 2
+							},
+							{
+								"pickId": "pk_salmon_l",
+								"count": 1
+							}
+						]
+					}
+				]
+			},
+			{
+				"$comment": "An app that lets the waiter take orders through Tamr (#457).",
+				"message": "Two kafta for the table please",
+				"branch": "achrafieh",
+				"mode": "dine_in",
+				"takes": ["orders"]
+			},
+			{
+				"$comment": "The diner added dishes from the waiter's card since its last reply (#457).",
+				"message": "And something to drink?",
+				"branch": "achrafieh",
+				"mode": "dine_in",
+				"takes": ["orders"],
+				"cardActions": [
+					{
+						"tool": "offer_to_order",
+						"offeredAt": "2026-11-04T19:40:00.000Z",
+						"outcome": "added",
+						"lines": [
+							{
+								"dishId": "cmdish0001",
+								"quantity": 2,
+								"size": null
+							}
+						]
+					}
+				]
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "An empty message.",
+				"message": "   "
+			},
+			{
+				"$comment": "A restriction outside the contract's allergens.",
+				"message": "Hi",
+				"restrictions": {
+					"avoidAllergens": ["lupin"],
+					"keepDiets": []
+				}
+			},
+			{
+				"$comment": "A cart line with no units.",
+				"message": "Hi",
+				"cart": [
+					{
+						"dishId": "dish_kafta",
+						"quantity": 0
+					}
+				]
+			},
+			{
+				"$comment": "A card action that isn't one (#457).",
+				"message": "Hi",
+				"cardActions": [
+					{
+						"tool": "offer_to_order",
+						"offeredAt": "2026-11-04T19:40:00.000Z",
+						"outcome": "sent",
+						"lines": []
+					}
+				]
+			}
+		]
+	},
+	"chatEvent": {
+		"valid": [
+			{
+				"type": "start",
+				"conversationId": "cmconv0001",
+				"messageId": "msg_01"
+			},
+			{
+				"type": "text",
+				"delta": "Try the grilled halloumi"
+			},
+			{
+				"type": "card",
+				"cardId": "call_01",
+				"card": {
+					"kind": "dishes",
+					"layout": "carousel",
+					"framing": "Two light ones",
+					"dishes": [
+						{
+							"dishId": "cmdish0001",
+							"name": "Grilled halloumi",
+							"price": "1200",
+							"currency": "USD",
+							"imageUrl": "https://tamr.link/image-proxy/media/halloumi.webp",
+							"calories": 420,
+							"proteinGrams": 24,
+							"carbsGrams": 8,
+							"fatGrams": 31,
+							"allergens": ["dairy"],
+							"dietaryTags": ["vegetarian"],
+							"available": true,
+							"externalId": "SKU-HALLOUMI"
+						},
+						{
+							"dishId": "cmdish0002",
+							"name": "Mint lemonade",
+							"price": "400",
+							"currency": "USD",
+							"imageUrl": null,
+							"calories": null,
+							"proteinGrams": null,
+							"carbsGrams": null,
+							"fatGrams": null,
+							"allergens": [],
+							"dietaryTags": ["vegan", "a-tag-from-later"],
+							"available": true,
+							"externalId": null
+						}
+					]
+				}
+			},
+			{
+				"type": "card",
+				"cardId": "call_02",
+				"card": {
+					"kind": "dishes",
+					"layout": "card",
+					"dishes": [
+						{
+							"dishId": "cmdish0002",
+							"name": "Mint lemonade",
+							"price": "400",
+							"currency": "USD",
+							"imageUrl": null,
+							"calories": null,
+							"proteinGrams": null,
+							"carbsGrams": null,
+							"fatGrams": null,
+							"allergens": [],
+							"dietaryTags": ["vegan", "a-tag-from-later"],
+							"available": true,
+							"externalId": null
+						}
+					],
+					"allergen": "dairy",
+					"verification": "menu-data",
+					"disclaimer": "Ask your server to confirm.",
+					"conflicts": []
+				}
+			},
+			{
+				"$comment": "A kind from a newer server reads as other.",
+				"type": "card",
+				"cardId": "call_03",
+				"card": {
+					"kind": "platter_builder"
+				}
+			},
+			{
+				"type": "card",
+				"cardId": "call_04",
+				"card": {
+					"kind": "staff_called",
+					"staffCall": {
+						"source": "request",
+						"kind": "water",
+						"alreadySent": false
+					}
+				}
+			},
+			{
+				"type": "card",
+				"cardId": "call_05",
+				"card": {
+					"kind": "cart_proposal",
+					"lines": [
+						{
+							"lineId": "ln_0003",
+							"dishId": "dish_bowl",
+							"variantId": "var_large",
+							"optionIds": [
+								"opt_chicken",
+								"opt_rice",
+								"opt_hummus"
+							],
+							"externalId": "BOWL",
+							"variantExternalId": "BOWL-L",
+							"optionExternalIds": ["CHK", null, "HUM"],
+							"title": "Build your bowl",
+							"variantLabel": "Large",
+							"choices": ["Grilled chicken", "Rice", "Hummus"],
+							"unitPrice": "320000",
+							"currency": "LBP",
+							"imageUrl": "https://tamr.link/image-proxy/menu/kafta.webp",
+							"quantity": 1,
+							"note": null
+						}
+					],
+					"notAdded": [
+						{
+							"dishId": "dish_shrimp",
+							"name": "Grilled shrimp",
+							"reason": "allergen_conflict"
+						},
+						{
+							"dishId": "dish_pizza",
+							"name": "Pizza",
+							"reason": "a_reason_from_a_newer_server"
+						}
+					]
+				}
+			},
+			{
+				"type": "card",
+				"cardId": "call_06",
+				"card": {
+					"kind": "order_offer",
+					"offer": {
+						"items": [
+							{
+								"dish": {
+									"dishId": "cmdish0001",
+									"name": "Grilled halloumi",
+									"price": "1200",
+									"currency": "USD",
+									"imageUrl": "https://tamr.link/image-proxy/media/halloumi.webp",
+									"calories": 420,
+									"proteinGrams": 24,
+									"carbsGrams": 8,
+									"fatGrams": 31,
+									"allergens": ["dairy"],
+									"dietaryTags": ["vegetarian"],
+									"available": true,
+									"externalId": "SKU-HALLOUMI"
+								},
+								"quantity": 2,
+								"size": null,
+								"choices": [],
+								"note": "No onions",
+								"dishSizes": [
+									{
+										"variantId": "var_large",
+										"label": "Large",
+										"price": "1500",
+										"externalId": null
+									}
+								],
+								"dishChoices": [
+									{
+										"name": "Bread",
+										"min": 1,
+										"max": 1,
+										"options": [
+											{
+												"optionId": "opt_saj",
+												"name": "Saj",
+												"price": null,
+												"externalId": null
+											}
+										]
+									}
+								]
+							}
+						],
+						"framing": null,
+						"offeredAt": "2026-11-04T19:40:00.000Z"
+					}
+				}
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No conversation id on start.",
+				"type": "start",
+				"messageId": "msg_01"
+			},
+			{
+				"$comment": "A card without its card.",
+				"type": "card",
+				"cardId": "call_01"
+			}
+		]
+	},
+	"chatDone": {
+		"valid": [
+			{
+				"finishReason": "stop"
+			},
+			{
+				"$comment": "A reason from a newer server reads as other.",
+				"finishReason": "budget_spent"
+			}
+		],
+		"rejected": [
+			{
+				"finishReason": 3
+			}
+		]
+	},
+	"waiterResponse": {
+		"valid": [
+			{
+				"name": "Céline",
+				"avatarLetter": "C",
+				"ordersGoTo": "tamr",
+				"greeting": "Hi! What are you in the mood for?",
+				"starters": ["What's popular?", "Something vegan"],
+				"voice": true,
+				"languages": []
+			},
+			{
+				"name": "Karim",
+				"avatarLetter": "KA",
+				"ordersGoTo": "tamr",
+				"greeting": "أهلاً!",
+				"starters": [],
+				"voice": false,
+				"languages": ["ar", "en"]
+			},
+			{
+				"$comment": "The full brand: the menu's kit over the organization's.",
+				"name": "Céline",
+				"avatarLetter": "C",
+				"ordersGoTo": "tamr",
+				"greeting": "Hi! What are you in the mood for?",
+				"starters": [],
+				"voice": true,
+				"languages": [],
+				"brand": {
+					"accent": "#1F7A4D",
+					"accentSecondary": "#E8B04B",
+					"paper": "#F4F1EA",
+					"displayFont": "fraunces",
+					"uiFont": "inter",
+					"uiFontUrl": "https://tamr.link/image-proxy/tamr-menus/brand-fonts/org/org_1/ui.woff2",
+					"logoUrl": "https://tamr.link/image-proxy/tamr-menus/brand-logos/org/org_1/logo.webp"
+				}
+			},
+			{
+				"$comment": "A brand kit with nothing set reads as an empty brand.",
+				"name": "Céline",
+				"avatarLetter": "C",
+				"ordersGoTo": "tamr",
+				"greeting": "Hi!",
+				"starters": [],
+				"voice": false,
+				"languages": [],
+				"brand": {}
+			},
+			{
+				"$comment": "Orders go to the app's own cart.",
+				"name": "Céline",
+				"avatarLetter": "C",
+				"ordersGoTo": "app_cart",
+				"greeting": "Hi!",
+				"starters": [],
+				"voice": false,
+				"languages": []
+			},
+			{
+				"$comment": "A destination from a newer server reads as tamr.",
+				"name": "Céline",
+				"avatarLetter": "C",
+				"ordersGoTo": "the_moon",
+				"greeting": "Hi!",
+				"starters": [],
+				"voice": false,
+				"languages": []
+			},
+			{
+				"$comment": "The restaurant's \"Waiter in your app\" settings, as published (#458): wording and starters per language.",
+				"name": "Céline",
+				"avatarLetter": "C",
+				"ordersGoTo": "tamr",
+				"greeting": "Hi!",
+				"starters": [],
+				"voice": true,
+				"languages": ["en", "ar"],
+				"app": {
+					"look": {
+						"scheme": "auto",
+						"accent": "#1F7A4D",
+						"paper": "#FFFFFF",
+						"text": "#131313",
+						"displayFont": "fraunces",
+						"uiFont": "dm-sans",
+						"corners": "soft"
+					},
+					"shown": {
+						"showHeader": false,
+						"showStarters": true,
+						"hideVoice": true
+					},
+					"wording": {
+						"en": {
+							"waiterName": "Layla",
+							"welcomeTitle": "Hungry?",
+							"welcomeSubtitle": "Try one of these",
+							"placeholder": "Ask Layla",
+							"labels": {
+								"newChat": "Start over"
+							}
+						},
+						"ar": {
+							"waiterName": "ليلى",
+							"welcomeTitle": "جائع؟"
+						}
+					},
+					"starters": {
+						"en": ["Something light", "What's spicy?"],
+						"ar": ["شيء خفيف"]
+					},
+					"allowCustomise": true
+				}
+			},
+			{
+				"$comment": "The app may not customise; nothing else set.",
+				"name": "Céline",
+				"avatarLetter": "C",
+				"ordersGoTo": "tamr",
+				"greeting": "Hi!",
+				"starters": [],
+				"voice": true,
+				"languages": ["en", "ar"],
+				"app": {
+					"allowCustomise": false
+				}
+			},
+			{
+				"$comment": "A scheme, corners or font from a newer server read as their fallbacks.",
+				"name": "Céline",
+				"avatarLetter": "C",
+				"ordersGoTo": "tamr",
+				"greeting": "Hi!",
+				"starters": [],
+				"voice": true,
+				"languages": ["en", "ar"],
+				"app": {
+					"allowCustomise": true,
+					"look": {
+						"scheme": "sepia",
+						"corners": "pill",
+						"displayFont": "new-serif"
+					}
+				}
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No name.",
+				"name": "",
+				"avatarLetter": "C",
+				"ordersGoTo": "tamr",
+				"greeting": "Hi",
+				"starters": [],
+				"voice": true,
+				"languages": []
+			},
+			{
+				"$comment": "Three letters in the avatar.",
+				"name": "Céline",
+				"avatarLetter": "CEL",
+				"ordersGoTo": "tamr",
+				"greeting": "Hi",
+				"starters": [],
+				"voice": true,
+				"languages": []
+			},
+			{
+				"$comment": "No greeting.",
+				"name": "Céline",
+				"avatarLetter": "C",
+				"ordersGoTo": "tamr",
+				"starters": [],
+				"voice": true,
+				"languages": []
+			},
+			{
+				"$comment": "A colour that is not #rrggbb.",
+				"name": "Céline",
+				"avatarLetter": "C",
+				"ordersGoTo": "tamr",
+				"greeting": "Hi",
+				"starters": [],
+				"voice": true,
+				"languages": [],
+				"brand": {
+					"accent": "red"
+				}
+			},
+			{
+				"$comment": "A logo that is not https.",
+				"name": "Céline",
+				"avatarLetter": "C",
+				"ordersGoTo": "tamr",
+				"greeting": "Hi",
+				"starters": [],
+				"voice": true,
+				"languages": [],
+				"brand": {
+					"logoUrl": "http://example.com/logo.png"
+				}
+			},
+			{
+				"$comment": "No ordersGoTo.",
+				"name": "Céline",
+				"avatarLetter": "C",
+				"greeting": "Hi",
+				"starters": [],
+				"voice": true,
+				"languages": []
+			},
+			{
+				"$comment": "An ordersGoTo that is not a string.",
+				"name": "Céline",
+				"avatarLetter": "C",
+				"ordersGoTo": 1,
+				"greeting": "Hi",
+				"starters": [],
+				"voice": true,
+				"languages": []
+			},
+			{
+				"$comment": "An app layer without allowCustomise.",
+				"name": "Céline",
+				"avatarLetter": "C",
+				"ordersGoTo": "tamr",
+				"greeting": "Hi!",
+				"starters": [],
+				"voice": true,
+				"languages": ["en", "ar"],
+				"app": {
+					"look": {
+						"accent": "#1F7A4D"
+					}
+				}
+			},
+			{
+				"$comment": "Seven starters in one language.",
+				"name": "Céline",
+				"avatarLetter": "C",
+				"ordersGoTo": "tamr",
+				"greeting": "Hi!",
+				"starters": [],
+				"voice": true,
+				"languages": ["en", "ar"],
+				"app": {
+					"allowCustomise": true,
+					"starters": {
+						"en": ["a", "b", "c", "d", "e", "f", "g"]
+					}
+				}
+			}
+		]
+	},
+	"warmupRequest": {
+		"valid": [
+			{},
+			{
+				"branch": "hamra",
+				"mode": "pickup",
+				"locale": "ar"
+			},
+			{
+				"$comment": "The warmup sends what the chat sends (#457).",
+				"branch": "achrafieh",
+				"mode": "dine_in",
+				"takes": ["orders"]
+			}
+		],
+		"rejected": [
+			{
+				"mode": "takeaway"
+			},
+			{
+				"branch": "Hamra Street"
+			}
+		]
+	},
+	"warmupResponse": {
+		"valid": [
+			{
+				"warmed": true
+			},
+			{
+				"warmed": false
+			}
+		],
+		"rejected": [
+			{},
+			{
+				"warmed": "yes"
+			}
+		]
+	},
+	"conversationList": {
+		"valid": [
+			{
+				"conversations": [
+					{
+						"conversationId": "cmconv0001",
+						"status": "active",
+						"channel": "app",
+						"locale": "en",
+						"startedAt": "2026-10-28T08:00:00Z",
+						"updatedAt": "2026-10-28T08:05:00Z",
+						"title": "Asked for something light"
+					}
+				]
+			},
+			{
+				"conversations": []
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "A channel in upper case is the database's, not the contract's.",
+				"conversations": [
+					{
+						"conversationId": "cmconv0001",
+						"status": "active",
+						"channel": 7,
+						"locale": "en",
+						"startedAt": "2026-10-28T08:00:00Z",
+						"updatedAt": "2026-10-28T08:05:00Z",
+						"title": null
+					}
+				]
+			}
+		]
+	},
+	"conversationResponse": {
+		"valid": [
+			{
+				"conversationId": "cmconv0001",
+				"status": "active",
+				"channel": "app",
+				"locale": "en",
+				"startedAt": "2026-10-28T08:00:00Z",
+				"updatedAt": "2026-10-28T08:05:00Z",
+				"messages": [
+					{
+						"messageId": "m1",
+						"role": "diner",
+						"createdAt": "2026-10-28T08:00:01Z",
+						"text": "Something light?",
+						"cards": []
+					},
+					{
+						"messageId": "m2",
+						"role": "waiter",
+						"createdAt": "2026-10-28T08:00:04Z",
+						"text": "Try these.",
+						"cards": [
+							{
+								"kind": "dishes",
+								"layout": "carousel",
+								"dishes": [
+									{
+										"dishId": "cmdish0001",
+										"name": "Grilled halloumi",
+										"price": "1200",
+										"currency": "USD",
+										"imageUrl": "https://tamr.link/image-proxy/media/halloumi.webp",
+										"calories": 420,
+										"proteinGrams": 24,
+										"carbsGrams": 8,
+										"fatGrams": 31,
+										"allergens": ["dairy"],
+										"dietaryTags": ["vegetarian"],
+										"available": true,
+										"externalId": "SKU-HALLOUMI"
+									}
+								]
+							}
+						]
+					}
+				]
+			}
+		],
+		"rejected": [
+			{
+				"conversationId": "cmconv0001",
+				"status": "active",
+				"channel": "app",
+				"locale": "en",
+				"startedAt": "2026-10-28T08:00:00Z",
+				"updatedAt": "2026-10-28T08:05:00Z",
+				"$comment": "No messages list."
+			}
+		]
+	},
+	"closeConversationResponse": {
+		"valid": [
+			{
+				"closed": true
+			},
+			{
+				"closed": false
+			}
+		],
+		"rejected": [{}]
+	},
+	"endSessionResponse": {
+		"valid": [
+			{
+				"ended": true
+			}
+		],
+		"rejected": [
+			{
+				"ended": "yes"
+			}
+		]
+	},
+	"transcribeResponse": {
+		"valid": [
+			{
+				"text": "Do you have anything vegan?",
+				"language": "en",
+				"seconds": 2.4
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No text.",
+				"language": "en",
+				"seconds": 2.4
+			}
+		]
+	},
+	"clientApiErrorData": {
+		"valid": [
+			{
+				"code": "waiter_resting",
+				"requestId": "9f1c0a4e-1d2b-4c3a-9e8f-0123456789ab",
+				"fallback": {
+					"name": "Cedar House",
+					"phone": "+961 1 234 567",
+					"message": "Our waiter is resting for now. A member of staff will be happy to help you."
+				}
+			},
+			{
+				"$comment": "A code from a newer server reads as other.",
+				"code": "quota_paused"
+			},
+			{
+				"code": "rate_limited",
+				"retryAfter": 12
+			},
+			{
+				"$comment": "An order refused because a dish can't be made (#457).",
+				"code": "table_refused",
+				"requestId": "req_01",
+				"refusal": "unavailable",
+				"problems": [
+					{
+						"dishId": "dish_kafta",
+						"name": "Kafta skewers",
+						"problem": "sold_out"
+					}
+				]
+			},
+			{
+				"$comment": "A tab that moved since the diner was shown it (#457's 2b): what it comes to now.",
+				"code": "pay_refused",
+				"requestId": "req_02",
+				"payRefusal": "tab_changed",
+				"amount": "2900"
+			},
+			{
+				"$comment": "A payment already open for another amount: that payment.",
+				"code": "pay_refused",
+				"payRefusal": "payment_in_progress",
+				"paymentId": "pay_0002"
+			},
+			{
+				"$comment": "A pickup refused (#599): Orders go to the app's cart, or the menu takes no orders.",
+				"code": "pickup_refused",
+				"pickupRefusal": "ordering_off"
+			},
+			{
+				"$comment": "A pickup refused (#599): The location takes no pickup orders.",
+				"code": "pickup_refused",
+				"pickupRefusal": "no_branch"
+			},
+			{
+				"$comment": "A pickup refused (#599): orders paused there, and until when.",
+				"code": "pickup_refused",
+				"pickupRefusal": "paused",
+				"pausedUntil": "2026-11-08T14:20:00.000Z"
+			},
+			{
+				"$comment": "A pickup refused (#599): As soon as possible while the location is closed.",
+				"code": "pickup_refused",
+				"pickupRefusal": "closed"
+			},
+			{
+				"$comment": "A pickup refused (#599): A time out of the location's hours.",
+				"code": "pickup_refused",
+				"pickupRefusal": "pickup_time"
+			},
+			{
+				"$comment": "A pickup refused (#599): The phone can't be read.",
+				"code": "pickup_refused",
+				"pickupRefusal": "details"
+			},
+			{
+				"$comment": "A pickup refused (#599): The restaurant doesn't take orders from this diner.",
+				"code": "pickup_refused",
+				"pickupRefusal": "blocked"
+			},
+			{
+				"$comment": "A pickup refused (#599): Too large an order.",
+				"code": "pickup_refused",
+				"pickupRefusal": "too_large"
+			},
+			{
+				"$comment": "A pickup refused (#599): a dish can't be made.",
+				"code": "pickup_refused",
+				"pickupRefusal": "unavailable",
+				"problems": [
+					{
+						"dishId": "dish_kafta",
+						"name": "Kafta skewers",
+						"problem": "sold_out"
+					}
+				]
+			},
+			{
+				"$comment": "A pickup refused (#599): A catering package.",
+				"code": "pickup_refused",
+				"pickupRefusal": "catering_menu"
+			},
+			{
+				"$comment": "A pickup refused (#599): A test key.",
+				"code": "pickup_refused",
+				"pickupRefusal": "test_key"
+			},
+			{
+				"$comment": "A pickup refused (#599): Anything else.",
+				"code": "pickup_refused",
+				"pickupRefusal": "other"
+			},
+			{
+				"$comment": "A pickup refusal from a newer server reads as other.",
+				"code": "pickup_refused",
+				"pickupRefusal": "kitchen_full"
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No code.",
+				"requestId": "abc"
+			}
+		]
+	},
+	"cartMatchRequest": {
+		"valid": [
+			{
+				"lines": [
+					{
+						"dishId": "dish_kafta",
+						"quantity": 2
+					},
+					{
+						"externalId": "SKU-1042",
+						"quantity": 1
+					},
+					{
+						"externalId": "DRINK-7",
+						"quantity": 3
+					}
+				]
+			},
+			{
+				"$comment": "An empty cart, at a named branch, for pickup.",
+				"branch": "achrafieh",
+				"mode": "pickup",
+				"lines": []
+			},
+			{
+				"$comment": "A set in the host's cart (#560): one pick by Tamr's pickId, one by the host's dish and size ids.",
+				"lines": [
+					{
+						"externalId": "SET-12",
+						"quantity": 1,
+						"picks": [
+							{
+								"pickId": "pk_california",
+								"count": 2
+							},
+							{
+								"externalId": "SKU-SAL",
+								"variantExternalId": "SKU-SAL-L",
+								"count": 1
+							}
+						]
+					}
+				]
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "A line named by both ids.",
+				"lines": [
+					{
+						"dishId": "dish_kafta",
+						"externalId": "SKU-1042",
+						"quantity": 1
+					}
+				]
+			}
+		]
+	},
+	"cartMatchResponse": {
+		"valid": [
+			{
+				"lines": [
+					{
+						"dishId": "dish_kafta",
+						"name": "Kafta plate",
+						"variantId": null,
+						"optionIds": [],
+						"quantity": 3
+					},
+					{
+						"dishId": "dish_bowl",
+						"name": "Build your bowl",
+						"variantId": "var_large",
+						"optionIds": ["opt_chicken"],
+						"quantity": 1
+					}
+				],
+				"unmapped": [
+					{
+						"externalId": "DRINK-7"
+					}
+				]
+			},
+			{
+				"lines": [],
+				"unmapped": []
+			},
+			{
+				"$comment": "The set matched with its picks, by Tamr's ids (#560). count is per one set.",
+				"lines": [
+					{
+						"dishId": "dish_sushi_set",
+						"name": "Sushi platter",
+						"variantId": null,
+						"optionIds": [],
+						"quantity": 1,
+						"picks": [
+							{
+								"pickId": "pk_california",
+								"count": 2
+							},
+							{
+								"pickId": "pk_salmon_l",
+								"count": 1
+							}
+						]
+					}
+				],
+				"unmapped": []
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No unmapped list.",
+				"lines": []
+			}
+		]
+	},
+	"tableSeatRequest": {
+		"valid": [
+			{
+				"scan": "https://tamr.link/m/cedar-house/dinner?b=achrafieh&t=12&s=qr"
+			},
+			{
+				"$comment": "The table's code alone, with the branch the app is at.",
+				"scan": "12",
+				"branch": "achrafieh"
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "An empty scan.",
+				"scan": "  "
+			}
+		]
+	},
+	"tableState": {
+		"valid": [
+			{
+				"table": {
+					"code": "12",
+					"zone": "Terrace"
+				},
+				"branch": "achrafieh",
+				"canSend": true,
+				"blockedBy": null,
+				"pausedUntil": null,
+				"rounds": [
+					{
+						"orderId": "ord_01",
+						"number": 17,
+						"status": "sent",
+						"branch": "achrafieh",
+						"table": "12",
+						"currency": "USD",
+						"subtotal": "2450",
+						"lines": [
+							{
+								"dishId": "dish_kafta",
+								"externalId": "SKU-KAFTA",
+								"title": "Kafta skewers",
+								"variantLabel": "Large",
+								"quantity": 2,
+								"unitPrice": "900"
+							},
+							{
+								"dishId": "dish_fattoush",
+								"externalId": null,
+								"title": "Fattoush",
+								"variantLabel": null,
+								"quantity": 1,
+								"unitPrice": "650"
+							}
+						]
+					}
+				],
+				"allergenDisclaimer": "Tell your server about any allergy before you order."
+			},
+			{
+				"$comment": "Not seated yet; a refusal this client doesn't know reads as other.",
+				"table": null,
+				"branch": null,
+				"canSend": false,
+				"blockedBy": "table_moved",
+				"pausedUntil": null,
+				"rounds": [],
+				"allergenDisclaimer": null
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "canSend is required.",
+				"table": null,
+				"branch": null,
+				"blockedBy": null,
+				"pausedUntil": null,
+				"rounds": [],
+				"allergenDisclaimer": null
+			}
+		]
+	},
+	"tableOrderRequest": {
+		"valid": [
+			{
+				"branch": "achrafieh",
+				"lines": [
+					{
+						"dishId": "dish_kafta",
+						"variantLabel": "Large",
+						"quantity": 2,
+						"note": "No onions",
+						"fromWaiter": true
+					},
+					{
+						"dishId": "dish_fattoush",
+						"variantLabel": null,
+						"quantity": 1,
+						"choices": [
+							{
+								"group": "Dressing",
+								"options": ["Pomegranate"]
+							}
+						]
+					}
+				],
+				"note": "We share the mains",
+				"idempotencyKey": "abababababababab"
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No lines.",
+				"lines": [],
+				"idempotencyKey": "abababababababab"
+			},
+			{
+				"$comment": "An idempotency key too short to be one.",
+				"lines": [
+					{
+						"dishId": "dish_kafta",
+						"variantLabel": null,
+						"quantity": 1
+					}
+				],
+				"idempotencyKey": "k"
+			}
+		]
+	},
+	"tableOrderResponse": {
+		"valid": [
+			{
+				"order": {
+					"orderId": "ord_01",
+					"number": 17,
+					"status": "sent",
+					"branch": "achrafieh",
+					"table": "12",
+					"currency": "USD",
+					"subtotal": "2450",
+					"lines": [
+						{
+							"dishId": "dish_kafta",
+							"externalId": "SKU-KAFTA",
+							"title": "Kafta skewers",
+							"variantLabel": "Large",
+							"quantity": 2,
+							"unitPrice": "900"
+						},
+						{
+							"dishId": "dish_fattoush",
+							"externalId": null,
+							"title": "Fattoush",
+							"variantLabel": null,
+							"quantity": 1,
+							"unitPrice": "650"
+						}
+					]
+				}
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No order.",
+				"order": null
+			}
+		]
+	},
+	"payOptions": {
+		"valid": [
+			{
+				"$comment": "At table 12 with 24.00 USD left on its tab; tips on.",
+				"available": true,
+				"reason": null,
+				"currency": "USD",
+				"exponent": 2,
+				"providers": [
+					{
+						"id": "whish",
+						"name": "Whish",
+						"merchantName": "Abiroot S.A.R.L. (Tamr)",
+						"min": "100",
+						"max": "50000"
+					}
+				],
+				"tipPresets": [1000, 1500, 2000],
+				"typedAmount": "allowed",
+				"tab": {
+					"table": "12",
+					"amount": "2400"
+				},
+				"openPayment": null
+			},
+			{
+				"$comment": "Tamr Pay is off at this branch.",
+				"available": false,
+				"reason": "not_enabled",
+				"currency": null,
+				"exponent": null,
+				"providers": [],
+				"tipPresets": null,
+				"typedAmount": null,
+				"tab": null,
+				"openPayment": null
+			},
+			{
+				"$comment": "A payment still open, a reason and a typed-amount rule from a newer server read as other and unknown.",
+				"available": true,
+				"reason": null,
+				"currency": "LBP",
+				"exponent": 0,
+				"providers": [
+					{
+						"id": "whish",
+						"name": "Whish",
+						"merchantName": "Cedar House",
+						"min": "100000",
+						"max": "45000000"
+					}
+				],
+				"tipPresets": null,
+				"typedAmount": "per_seat",
+				"tab": null,
+				"openPayment": {
+					"paymentId": "pay_0002",
+					"reference": "TP-7K2M9QXA",
+					"status": "open",
+					"amount": "1500000",
+					"tip": "0",
+					"total": "1500000",
+					"currency": "LBP",
+					"expiresAt": "2026-11-05T20:05:00.000Z"
+				}
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "An amount with a decimal point.",
+				"available": true,
+				"reason": null,
+				"currency": "USD",
+				"exponent": 2,
+				"providers": [
+					{
+						"id": "whish",
+						"name": "Whish",
+						"merchantName": "Cedar House",
+						"min": "1.00",
+						"max": "500"
+					}
+				],
+				"tipPresets": null,
+				"typedAmount": "allowed",
+				"tab": null,
+				"openPayment": null
+			}
+		]
+	},
+	"payRequest": {
+		"valid": [
+			{
+				"$comment": "The whole tab, as the diner was shown it, with a 10% tip.",
+				"branch": "achrafieh",
+				"provider": "whish",
+				"pay": "tab",
+				"amount": "2400",
+				"tip": "240",
+				"locale": "ar"
+			},
+			{
+				"$comment": "An amount the diner typed, after being told the table had paid today.",
+				"provider": "whish",
+				"pay": "amount",
+				"amount": "1500",
+				"tablePaidConfirmed": true
+			},
+			{
+				"$comment": "A pickup paid ahead (#599): always its own total.",
+				"provider": "whish",
+				"pay": "order",
+				"amount": "0",
+				"orderId": "ord_0600"
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No provider.",
+				"pay": "amount",
+				"amount": "1500"
+			},
+			{
+				"$comment": "A negative amount.",
+				"provider": "whish",
+				"pay": "amount",
+				"amount": "-5"
+			}
+		]
+	},
+	"payResponse": {
+		"valid": [
+			{
+				"payment": {
+					"paymentId": "pay_0002",
+					"reference": "TP-7K2M9QXA",
+					"status": "open",
+					"amount": "2400",
+					"tip": "240",
+					"total": "2640",
+					"currency": "USD",
+					"expiresAt": "2026-11-05T20:05:00.000Z"
+				},
+				"url": "https://pay.whish.money/checkout/7f3a9c21",
+				"resumed": false
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No link.",
+				"payment": {
+					"paymentId": "pay_0002",
+					"reference": "TP-7K2M9QXA",
+					"status": "open",
+					"amount": "2400",
+					"tip": "240",
+					"total": "2640",
+					"currency": "USD",
+					"expiresAt": "2026-11-05T20:05:00.000Z"
+				},
+				"resumed": false
+			}
+		]
+	},
+	"paymentStatus": {
+		"valid": [
+			{
+				"paymentId": "pay_0002",
+				"reference": "TP-7K2M9QXA",
+				"status": "paid",
+				"amount": "2400",
+				"tip": "240",
+				"total": "2640",
+				"currency": "USD",
+				"expiresAt": "2026-11-05T20:05:00.000Z"
+			},
+			{
+				"$comment": "A state from a newer server reads as unknown.",
+				"paymentId": "pay_0002",
+				"reference": "TP-7K2M9QXA",
+				"status": "disputed",
+				"amount": "2400",
+				"tip": "240",
+				"total": "2640",
+				"currency": "USD",
+				"expiresAt": "2026-11-05T20:05:00.000Z"
+			},
+			{
+				"$comment": "With the provider and what it pays, so the app can repeat the start for an open payment (#457's 2b follow-up).",
+				"paymentId": "pay_0002",
+				"reference": "TP-7K2M9QXA",
+				"status": "open",
+				"amount": "2400",
+				"tip": "240",
+				"total": "2640",
+				"currency": "USD",
+				"expiresAt": "2026-11-05T20:05:00.000Z",
+				"provider": "whish",
+				"pay": "tab"
+			},
+			{
+				"$comment": "A part of a tab started on the QR menu: an app can't start it, so it reads as unknown.",
+				"paymentId": "pay_0002",
+				"reference": "TP-7K2M9QXA",
+				"status": "open",
+				"amount": "2400",
+				"tip": "240",
+				"total": "2640",
+				"currency": "USD",
+				"expiresAt": "2026-11-05T20:05:00.000Z",
+				"provider": "whish",
+				"pay": "items"
+			},
+			{
+				"paymentId": "pay_0002",
+				"reference": "TP-7K2M9QXA",
+				"status": "paid",
+				"amount": "2400",
+				"tip": "240",
+				"total": "2640",
+				"currency": "USD",
+				"expiresAt": "2026-11-05T20:05:00.000Z",
+				"$comment": "A pickup paid ahead (#599).",
+				"pay": "order",
+				"provider": "whish"
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No total.",
+				"paymentId": "pay_1",
+				"reference": "TP-1",
+				"status": "open",
+				"amount": "100",
+				"tip": "0",
+				"currency": "USD",
+				"expiresAt": null
+			}
+		]
+	},
+	"pickupOptions": {
+		"valid": [
+			{
+				"$comment": "Two locations: one paid ahead through Tamr Pay, one at the counter and paused for now (#599).",
+				"available": true,
+				"reason": null,
+				"serverNow": "2026-11-08T14:00:00.000Z",
+				"asapMinutes": {
+					"min": 15,
+					"max": 20
+				},
+				"locations": [
+					{
+						"branch": "achrafieh",
+						"name": "Achrafieh",
+						"address": "Sursock Street, Beirut",
+						"timezone": "Asia/Beirut",
+						"openNow": true,
+						"pausedUntil": null,
+						"payFirst": true,
+						"today": [
+							"2026-11-08T14:30:00.000Z",
+							"2026-11-08T14:45:00.000Z"
+						],
+						"tomorrow": ["2026-11-09T09:00:00.000Z"]
+					},
+					{
+						"branch": "hamra",
+						"name": "Hamra",
+						"address": null,
+						"timezone": "Asia/Beirut",
+						"openNow": false,
+						"pausedUntil": "2026-11-08T14:20:00.000Z",
+						"payFirst": false,
+						"today": [],
+						"tomorrow": []
+					}
+				]
+			},
+			{
+				"$comment": "A test key's diner: why, and no location.",
+				"available": false,
+				"reason": "test_key",
+				"serverNow": "2026-11-08T14:00:00.000Z",
+				"asapMinutes": {
+					"min": 15,
+					"max": 20
+				},
+				"locations": []
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "A location without payFirst.",
+				"available": true,
+				"reason": null,
+				"serverNow": "2026-11-08T14:00:00.000Z",
+				"asapMinutes": {
+					"min": 15,
+					"max": 20
+				},
+				"locations": [
+					{
+						"branch": "achrafieh",
+						"name": "Achrafieh",
+						"address": "Sursock Street, Beirut",
+						"timezone": "Asia/Beirut",
+						"openNow": true,
+						"pausedUntil": null,
+						"today": [
+							"2026-11-08T14:30:00.000Z",
+							"2026-11-08T14:45:00.000Z"
+						],
+						"tomorrow": ["2026-11-09T09:00:00.000Z"]
+					}
+				]
+			}
+		]
+	},
+	"pickupOrderRequest": {
+		"valid": [
+			{
+				"$comment": "As soon as possible, at the counter.",
+				"branch": "hamra",
+				"lines": [
+					{
+						"dishId": "dish_kafta",
+						"variantLabel": null,
+						"quantity": 2
+					}
+				],
+				"name": "Rania",
+				"phone": "+961 71 234 567",
+				"at": null,
+				"how": "counter",
+				"idempotencyKey": "pickup-aaaaaaaa"
+			},
+			{
+				"$comment": "A quarter hour tomorrow, brought to the car, with the waiter's dish and notes.",
+				"branch": "achrafieh",
+				"lines": [
+					{
+						"dishId": "dish_fattoush",
+						"variantLabel": "Large",
+						"quantity": 1,
+						"note": "No onions",
+						"fromWaiter": true
+					}
+				],
+				"name": "Rania",
+				"phone": "71234567",
+				"at": "2026-11-09T09:00:00+02:00",
+				"how": "curbside",
+				"car": "Grey Kia",
+				"note": "Call when close",
+				"allergyNote": "Sesame",
+				"idempotencyKey": "pickup-bbbbbbbb"
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No name.",
+				"branch": "hamra",
+				"lines": [
+					{
+						"dishId": "dish_kafta",
+						"variantLabel": null,
+						"quantity": 1
+					}
+				],
+				"phone": "71234567",
+				"at": null,
+				"how": "counter",
+				"idempotencyKey": "pickup-aaaaaaaa"
+			},
+			{
+				"$comment": "A way of collecting Tamr doesn't take.",
+				"branch": "hamra",
+				"lines": [
+					{
+						"dishId": "dish_kafta",
+						"variantLabel": null,
+						"quantity": 1
+					}
+				],
+				"name": "Rania",
+				"phone": "71234567",
+				"at": null,
+				"how": "drive_through",
+				"idempotencyKey": "pickup-aaaaaaaa"
+			},
+			{
+				"$comment": "No lines.",
+				"branch": "hamra",
+				"lines": [],
+				"name": "Rania",
+				"phone": "71234567",
+				"at": null,
+				"how": "counter",
+				"idempotencyKey": "pickup-aaaaaaaa"
+			}
+		]
+	},
+	"pickupOrderResponse": {
+		"valid": [
+			{
+				"$comment": "Paid at the counter: with the team now.",
+				"order": {
+					"orderId": "ord_0599",
+					"number": 23,
+					"status": "sent",
+					"branch": "hamra",
+					"table": null,
+					"currency": "LBP",
+					"subtotal": "290000",
+					"lines": [
+						{
+							"dishId": "dish_kafta",
+							"externalId": "SKU-1042",
+							"title": "Kafta plate",
+							"variantLabel": null,
+							"quantity": 2,
+							"unitPrice": "145000"
+						}
+					],
+					"fulfilment": "pickup",
+					"pickupAt": null,
+					"pickupCode": "4821",
+					"paymentDueAt": null,
+					"paid": false
+				}
+			},
+			{
+				"$comment": "Paid ahead: waiting to be paid, for a quarter hour tomorrow.",
+				"order": {
+					"orderId": "ord_0600",
+					"number": 23,
+					"status": "awaiting_payment",
+					"branch": "achrafieh",
+					"table": null,
+					"currency": "LBP",
+					"subtotal": "290000",
+					"lines": [
+						{
+							"dishId": "dish_kafta",
+							"externalId": "SKU-1042",
+							"title": "Kafta plate",
+							"variantLabel": null,
+							"quantity": 2,
+							"unitPrice": "145000"
+						}
+					],
+					"fulfilment": "pickup",
+					"pickupAt": "2026-11-09T07:00:00.000Z",
+					"pickupCode": "5310",
+					"paymentDueAt": "2026-11-08T14:15:00.000Z",
+					"paid": false
+				}
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "Without paid.",
+				"order": {
+					"orderId": "ord_0599",
+					"number": 23,
+					"status": "sent",
+					"branch": "hamra",
+					"table": null,
+					"currency": "LBP",
+					"subtotal": "290000",
+					"lines": [
+						{
+							"dishId": "dish_kafta",
+							"externalId": "SKU-1042",
+							"title": "Kafta plate",
+							"variantLabel": null,
+							"quantity": 2,
+							"unitPrice": "145000"
+						}
+					],
+					"fulfilment": "pickup",
+					"pickupAt": null,
+					"pickupCode": "4821",
+					"paymentDueAt": null
+				}
+			}
+		]
+	},
+	"pickupOrderList": {
+		"valid": [
+			{
+				"orders": [
+					{
+						"orderId": "ord_0600",
+						"number": 23,
+						"status": "sent",
+						"branch": "achrafieh",
+						"table": null,
+						"currency": "LBP",
+						"subtotal": "290000",
+						"lines": [
+							{
+								"dishId": "dish_kafta",
+								"externalId": "SKU-1042",
+								"title": "Kafta plate",
+								"variantLabel": null,
+								"quantity": 2,
+								"unitPrice": "145000"
+							}
+						],
+						"fulfilment": "pickup",
+						"pickupAt": "2026-11-09T07:00:00.000Z",
+						"pickupCode": "5310",
+						"paymentDueAt": null,
+						"paid": true
+					},
+					{
+						"orderId": "ord_0599",
+						"number": 23,
+						"status": "expired",
+						"branch": "hamra",
+						"table": null,
+						"currency": "LBP",
+						"subtotal": "290000",
+						"lines": [
+							{
+								"dishId": "dish_kafta",
+								"externalId": "SKU-1042",
+								"title": "Kafta plate",
+								"variantLabel": null,
+								"quantity": 2,
+								"unitPrice": "145000"
+							}
+						],
+						"fulfilment": "pickup",
+						"pickupAt": null,
+						"pickupCode": "4821",
+						"paymentDueAt": null,
+						"paid": false
+					}
+				]
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "Not a list.",
+				"orders": {
+					"orderId": "ord_0599",
+					"number": 23,
+					"status": "sent",
+					"branch": "hamra",
+					"table": null,
+					"currency": "LBP",
+					"subtotal": "290000",
+					"lines": [
+						{
+							"dishId": "dish_kafta",
+							"externalId": "SKU-1042",
+							"title": "Kafta plate",
+							"variantLabel": null,
+							"quantity": 2,
+							"unitPrice": "145000"
+						}
+					],
+					"fulfilment": "pickup",
+					"pickupAt": null,
+					"pickupCode": "4821",
+					"paymentDueAt": null,
+					"paid": false
+				}
+			}
+		]
+	}
+}

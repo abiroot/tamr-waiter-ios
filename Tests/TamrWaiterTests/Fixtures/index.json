@@ -1,0 +1,45 @@
+{
+	"$comment": "Every fixture file, with the SDK version that first requires it. An SDK at or above `since` must hold a byte-identical copy of the file (checked in CI from #430). A file is never removed or renamed; a new message family gets a new file.",
+	"files": [
+		{
+			"name": "bridge_v1.json",
+			"since": "1.0.0"
+		},
+		{
+			"name": "identity_v1.json",
+			"since": "1.0.0"
+		},
+		{
+			"name": "cart_v1.json",
+			"since": "1.0.0"
+		},
+		{
+			"name": "events_v1.json",
+			"since": "1.0.0"
+		},
+		{
+			"name": "control_v1.json",
+			"since": "1.0.0"
+		},
+		{
+			"name": "appearance_v1.json",
+			"since": "1.0.0"
+		},
+		{
+			"name": "host_v1.json",
+			"since": "1.0.0"
+		},
+		{
+			"name": "api_v1.json",
+			"since": "1.0.0"
+		},
+		{
+			"name": "debug_v1.json",
+			"since": "1.0.0"
+		},
+		{
+			"name": "webhooks_v1.json",
+			"since": "1.0.0"
+		}
+	]
+}

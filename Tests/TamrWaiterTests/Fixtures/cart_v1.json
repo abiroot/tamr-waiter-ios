@@ -1,0 +1,726 @@
+{
+	"$comment": "Cart lines when orders go to the app's cart (docs/sdk/PLAN.md, Ordering handoff and the id model; ADR 0009). Tamr's ids always; the host's ids when mapped, else null (ln_0002); optionExternalIds and choices line up with optionIds, one entry each, null where an option is not mapped (ln_0003). Money is minor units as a string. The app answers cart.add/update/remove with a reply holding one answer per line, and cart.snapshot with a reply listing lines it named by an id the page could not match. A set built from other dishes carries its picks (#560): count is per one set, and the line's quantity multiplies the whole set, picks included (add_0010).",
+	"pageToHost": [
+		{
+			"v": 1,
+			"id": "add_0001",
+			"type": "cart.add",
+			"ts": 1792310437000,
+			"data": {
+				"lines": [
+					{
+						"lineId": "ln_0001",
+						"dishId": "dish_kafta",
+						"variantId": null,
+						"optionIds": [],
+						"externalId": "SKU-1042",
+						"variantExternalId": null,
+						"optionExternalIds": [],
+						"title": "Kafta plate",
+						"variantLabel": null,
+						"choices": [],
+						"unitPrice": "145000",
+						"currency": "LBP",
+						"imageUrl": "https://tamr.link/image-proxy/menu/kafta.webp",
+						"quantity": 2,
+						"note": null
+					},
+					{
+						"lineId": "ln_0002",
+						"dishId": "dish_fattoush",
+						"variantId": null,
+						"optionIds": [],
+						"externalId": null,
+						"variantExternalId": null,
+						"optionExternalIds": [],
+						"title": "Fattoush",
+						"variantLabel": null,
+						"choices": [],
+						"unitPrice": "65000",
+						"currency": "LBP",
+						"imageUrl": null,
+						"quantity": 1,
+						"note": "no radish"
+					},
+					{
+						"lineId": "ln_0003",
+						"dishId": "dish_bowl",
+						"variantId": "var_large",
+						"optionIds": ["opt_chicken", "opt_rice", "opt_hummus"],
+						"externalId": "BOWL",
+						"variantExternalId": "BOWL-L",
+						"optionExternalIds": ["CHK", null, "HUM"],
+						"title": "Build your bowl",
+						"variantLabel": "Large",
+						"choices": ["Grilled chicken", "Rice", "Hummus"],
+						"unitPrice": "320000",
+						"currency": "LBP",
+						"imageUrl": "https://tamr.link/image-proxy/menu/kafta.webp",
+						"quantity": 1,
+						"note": null
+					}
+				],
+				"origin": "waiter",
+				"conversationId": "cm1conv0001"
+			}
+		},
+		{
+			"$comment": "A set the diner built (#560): its picks, Tamr's ids always and the host's when mapped. count is per ONE set; quantity 2 means two whole platters, so 4 California maki picks in all.",
+			"v": 1,
+			"id": "add_0010",
+			"type": "cart.add",
+			"ts": 1792310438000,
+			"data": {
+				"lines": [
+					{
+						"lineId": "ln_0010",
+						"dishId": "dish_sushi_set",
+						"variantId": null,
+						"optionIds": [],
+						"externalId": "SET-12",
+						"variantExternalId": null,
+						"optionExternalIds": [],
+						"title": "Sushi platter",
+						"variantLabel": null,
+						"choices": [],
+						"unitPrice": "420000",
+						"currency": "LBP",
+						"imageUrl": null,
+						"quantity": 2,
+						"note": null,
+						"picks": [
+							{
+								"pickId": "pk_california",
+								"dishId": "dish_california",
+								"variantId": null,
+								"externalId": "SKU-CAL",
+								"variantExternalId": null,
+								"title": "California maki",
+								"variantLabel": null,
+								"pieces": 4,
+								"count": 2
+							},
+							{
+								"pickId": "pk_salmon_l",
+								"dishId": "dish_salmon_nigiri",
+								"variantId": "var_salmon_l",
+								"externalId": "SKU-SAL",
+								"variantExternalId": "SKU-SAL-L",
+								"title": "Salmon nigiri",
+								"variantLabel": "Large",
+								"pieces": 2,
+								"count": 1
+							}
+						]
+					}
+				],
+				"origin": "waiter",
+				"conversationId": "cm1conv0001"
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0038",
+			"type": "cart.add",
+			"ts": 1792310438000,
+			"data": {
+				"lines": [
+					{
+						"lineId": "ln_0004",
+						"dishId": "dish_lemonade",
+						"variantId": null,
+						"optionIds": [],
+						"externalId": "DRK-7",
+						"variantExternalId": null,
+						"optionExternalIds": [],
+						"title": "Mint lemonade",
+						"variantLabel": null,
+						"choices": [],
+						"unitPrice": "450",
+						"currency": "USD",
+						"imageUrl": null,
+						"quantity": 3,
+						"note": null
+					}
+				],
+				"origin": "diner",
+				"conversationId": "cm1conv0001"
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0039",
+			"type": "cart.update",
+			"ts": 1792310439000,
+			"data": {
+				"lines": [
+					{
+						"lineId": "ln_0001",
+						"dishId": "dish_kafta",
+						"variantId": null,
+						"optionIds": [],
+						"externalId": "SKU-1042",
+						"variantExternalId": null,
+						"optionExternalIds": [],
+						"title": "Kafta plate",
+						"variantLabel": null,
+						"choices": [],
+						"unitPrice": "145000",
+						"currency": "LBP",
+						"imageUrl": "https://tamr.link/image-proxy/menu/kafta.webp",
+						"quantity": 3,
+						"note": null
+					}
+				],
+				"origin": "diner",
+				"conversationId": "cm1conv0001"
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0040",
+			"type": "cart.remove",
+			"ts": 1792310440000,
+			"data": {
+				"lines": [
+					{
+						"lineId": "ln_0002",
+						"dishId": "dish_fattoush",
+						"variantId": null,
+						"optionIds": [],
+						"externalId": null,
+						"variantExternalId": null,
+						"optionExternalIds": [],
+						"title": "Fattoush",
+						"variantLabel": null,
+						"choices": [],
+						"unitPrice": "65000",
+						"currency": "LBP",
+						"imageUrl": null,
+						"quantity": 1,
+						"note": "no radish"
+					}
+				],
+				"origin": "waiter",
+				"conversationId": "cm1conv0001"
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0041",
+			"type": "checkout",
+			"ts": 1792310441000,
+			"data": {
+				"conversationId": "cm1conv0001"
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0042",
+			"type": "reply",
+			"ts": 1792310442000,
+			"data": {
+				"ok": true,
+				"unmapped": [
+					{
+						"externalId": "DRK-99"
+					}
+				]
+			},
+			"replyTo": "snap_0001"
+		}
+	],
+	"hostToPage": [
+		{
+			"v": 1,
+			"id": "msg_0043",
+			"type": "reply",
+			"ts": 1792310443000,
+			"data": {
+				"ok": true,
+				"lines": [
+					{
+						"lineId": "ln_0001",
+						"ok": true
+					},
+					{
+						"lineId": "ln_0002",
+						"ok": false,
+						"reason": "not_found"
+					},
+					{
+						"lineId": "ln_0003",
+						"ok": false,
+						"reason": "sold_out"
+					}
+				]
+			},
+			"replyTo": "add_0001"
+		},
+		{
+			"v": 1,
+			"id": "msg_0044",
+			"type": "reply",
+			"ts": 1792310444000,
+			"data": {
+				"ok": true,
+				"lines": [
+					{
+						"lineId": "ln_0004",
+						"ok": false,
+						"reason": "other",
+						"message": "Minimum order is 2"
+					}
+				]
+			},
+			"replyTo": "add_0002"
+		},
+		{
+			"v": 1,
+			"id": "snap_0001",
+			"type": "cart.snapshot",
+			"ts": 1792310445000,
+			"data": {
+				"lines": [
+					{
+						"externalId": "SKU-1042",
+						"quantity": 2
+					},
+					{
+						"dishId": "dish_bowl",
+						"variantId": "var_large",
+						"optionIds": ["opt_chicken"],
+						"quantity": 1
+					},
+					{
+						"externalId": "DRK-99",
+						"variantExternalId": "DRK-99-L",
+						"quantity": 1
+					}
+				]
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0046",
+			"type": "cart.snapshot",
+			"ts": 1792310446000,
+			"data": {
+				"lines": []
+			}
+		},
+		{
+			"$comment": "The host's own cart holds a set (#560): one pick by Tamr's pickId, one by the host's dish id with its size id, for a set that offers one dish at two sizes.",
+			"v": 1,
+			"id": "snap_0010",
+			"type": "cart.snapshot",
+			"ts": 1792310446000,
+			"data": {
+				"lines": [
+					{
+						"externalId": "SET-12",
+						"quantity": 1,
+						"picks": [
+							{
+								"pickId": "pk_california",
+								"count": 2
+							},
+							{
+								"externalId": "SKU-SAL",
+								"variantExternalId": "SKU-SAL-L",
+								"count": 1
+							}
+						]
+					}
+				]
+			}
+		}
+	],
+	"rejected": [
+		{
+			"$comment": "A snapshot line named by both ids.",
+			"v": 1,
+			"id": "msg_0047",
+			"type": "cart.snapshot",
+			"ts": 1792310447000,
+			"data": {
+				"lines": [
+					{
+						"dishId": "dish_kafta",
+						"externalId": "SKU-1042",
+						"quantity": 1
+					}
+				]
+			}
+		},
+		{
+			"$comment": "A snapshot line named by neither.",
+			"v": 1,
+			"id": "msg_0048",
+			"type": "cart.snapshot",
+			"ts": 1792310448000,
+			"data": {
+				"lines": [
+					{
+						"quantity": 1
+					}
+				]
+			}
+		},
+		{
+			"$comment": "optionExternalIds does not line up with optionIds.",
+			"v": 1,
+			"id": "msg_0049",
+			"type": "cart.add",
+			"ts": 1792310449000,
+			"data": {
+				"lines": [
+					{
+						"lineId": "ln_0001",
+						"dishId": "dish_kafta",
+						"variantId": null,
+						"optionIds": ["opt_a"],
+						"externalId": "SKU-1042",
+						"variantExternalId": null,
+						"optionExternalIds": [],
+						"title": "Kafta plate",
+						"variantLabel": null,
+						"choices": ["A"],
+						"unitPrice": "145000",
+						"currency": "LBP",
+						"imageUrl": "https://tamr.link/image-proxy/menu/kafta.webp",
+						"quantity": 2,
+						"note": null
+					}
+				],
+				"origin": "waiter",
+				"conversationId": "cm1conv0001"
+			}
+		},
+		{
+			"$comment": "A decimal price instead of minor units.",
+			"v": 1,
+			"id": "msg_0050",
+			"type": "cart.add",
+			"ts": 1792310450000,
+			"data": {
+				"lines": [
+					{
+						"lineId": "ln_0001",
+						"dishId": "dish_kafta",
+						"variantId": null,
+						"optionIds": [],
+						"externalId": "SKU-1042",
+						"variantExternalId": null,
+						"optionExternalIds": [],
+						"title": "Kafta plate",
+						"variantLabel": null,
+						"choices": [],
+						"unitPrice": "12.50",
+						"currency": "LBP",
+						"imageUrl": "https://tamr.link/image-proxy/menu/kafta.webp",
+						"quantity": 2,
+						"note": null
+					}
+				],
+				"origin": "waiter",
+				"conversationId": "cm1conv0001"
+			}
+		},
+		{
+			"$comment": "Quantity 0 on a proposed line.",
+			"v": 1,
+			"id": "msg_0051",
+			"type": "cart.add",
+			"ts": 1792310451000,
+			"data": {
+				"lines": [
+					{
+						"lineId": "ln_0001",
+						"dishId": "dish_kafta",
+						"variantId": null,
+						"optionIds": [],
+						"externalId": "SKU-1042",
+						"variantExternalId": null,
+						"optionExternalIds": [],
+						"title": "Kafta plate",
+						"variantLabel": null,
+						"choices": [],
+						"unitPrice": "145000",
+						"currency": "LBP",
+						"imageUrl": "https://tamr.link/image-proxy/menu/kafta.webp",
+						"quantity": 0,
+						"note": null
+					}
+				],
+				"origin": "waiter",
+				"conversationId": "cm1conv0001"
+			}
+		},
+		{
+			"$comment": "A host variant id with no Tamr variant id.",
+			"v": 1,
+			"id": "msg_0052",
+			"type": "cart.add",
+			"ts": 1792310452000,
+			"data": {
+				"lines": [
+					{
+						"lineId": "ln_0001",
+						"dishId": "dish_kafta",
+						"variantId": null,
+						"optionIds": [],
+						"externalId": "SKU-1042",
+						"variantExternalId": "X-L",
+						"optionExternalIds": [],
+						"title": "Kafta plate",
+						"variantLabel": null,
+						"choices": [],
+						"unitPrice": "145000",
+						"currency": "LBP",
+						"imageUrl": "https://tamr.link/image-proxy/menu/kafta.webp",
+						"quantity": 2,
+						"note": null
+					}
+				],
+				"origin": "waiter",
+				"conversationId": "cm1conv0001"
+			}
+		},
+		{
+			"$comment": "A lower-case currency.",
+			"v": 1,
+			"id": "msg_0054",
+			"type": "cart.add",
+			"ts": 1792310454000,
+			"data": {
+				"lines": [
+					{
+						"lineId": "ln_0001",
+						"dishId": "dish_kafta",
+						"variantId": null,
+						"optionIds": [],
+						"externalId": "SKU-1042",
+						"variantExternalId": null,
+						"optionExternalIds": [],
+						"title": "Kafta plate",
+						"variantLabel": null,
+						"choices": [],
+						"unitPrice": "145000",
+						"currency": "usd",
+						"imageUrl": "https://tamr.link/image-proxy/menu/kafta.webp",
+						"quantity": 2,
+						"note": null
+					}
+				],
+				"origin": "waiter",
+				"conversationId": "cm1conv0001"
+			}
+		},
+		{
+			"$comment": "A line without an origin still fails.",
+			"v": 1,
+			"id": "open_0012",
+			"type": "cart.remove",
+			"ts": 1792310400012,
+			"data": {
+				"lines": [
+					{
+						"lineId": "ln_0001",
+						"dishId": "dish_kafta",
+						"variantId": null,
+						"optionIds": [],
+						"externalId": "SKU-1042",
+						"variantExternalId": null,
+						"optionExternalIds": [],
+						"title": "Kafta plate",
+						"variantLabel": null,
+						"choices": [],
+						"unitPrice": "145000",
+						"currency": "LBP",
+						"imageUrl": "https://tamr.link/image-proxy/menu/kafta.webp",
+						"quantity": 2,
+						"note": null
+					}
+				],
+				"conversationId": "cm1conv0001"
+			}
+		},
+		{
+			"$comment": "A set pick named by both ids.",
+			"v": 1,
+			"id": "snap_0011",
+			"type": "cart.snapshot",
+			"ts": 1792310447000,
+			"data": {
+				"lines": [
+					{
+						"dishId": "dish_sushi_set",
+						"quantity": 1,
+						"picks": [
+							{
+								"pickId": "pk_california",
+								"externalId": "SKU-CAL",
+								"count": 1
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"$comment": "A pick's host size id with no host dish id.",
+			"v": 1,
+			"id": "snap_0012",
+			"type": "cart.snapshot",
+			"ts": 1792310448000,
+			"data": {
+				"lines": [
+					{
+						"dishId": "dish_sushi_set",
+						"quantity": 1,
+						"picks": [
+							{
+								"pickId": "pk_salmon_l",
+								"variantExternalId": "SKU-SAL-L",
+								"count": 1
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"$comment": "A pick's host size id with no Tamr size id.",
+			"v": 1,
+			"id": "add_0011",
+			"type": "cart.add",
+			"ts": 1792310449000,
+			"data": {
+				"lines": [
+					{
+						"lineId": "ln_0011",
+						"dishId": "dish_sushi_set",
+						"variantId": null,
+						"optionIds": [],
+						"externalId": "SET-12",
+						"variantExternalId": null,
+						"optionExternalIds": [],
+						"title": "Sushi platter",
+						"variantLabel": null,
+						"choices": [],
+						"unitPrice": "420000",
+						"currency": "LBP",
+						"imageUrl": null,
+						"quantity": 2,
+						"note": null,
+						"picks": [
+							{
+								"pickId": "pk_salmon_l",
+								"dishId": "dish_salmon_nigiri",
+								"variantId": null,
+								"externalId": "SKU-SAL",
+								"variantExternalId": "SKU-SAL-L",
+								"title": "Salmon nigiri",
+								"variantLabel": null,
+								"pieces": 1,
+								"count": 1
+							}
+						]
+					}
+				],
+				"origin": "waiter",
+				"conversationId": "cm1conv0001"
+			}
+		}
+	],
+	"lenient": [
+		{
+			"$comment": "An origin this SDK does not know parses as unknown. The page never sends `host`: it does not echo the host's own changes.",
+			"direction": "pageToHost",
+			"message": {
+				"v": 1,
+				"id": "open_0010",
+				"type": "cart.add",
+				"ts": 1792310400010,
+				"data": {
+					"lines": [
+						{
+							"lineId": "ln_0001",
+							"dishId": "dish_kafta",
+							"variantId": null,
+							"optionIds": [],
+							"externalId": "SKU-1042",
+							"variantExternalId": null,
+							"optionExternalIds": [],
+							"title": "Kafta plate",
+							"variantLabel": null,
+							"choices": [],
+							"unitPrice": "145000",
+							"currency": "LBP",
+							"imageUrl": "https://tamr.link/image-proxy/menu/kafta.webp",
+							"quantity": 2,
+							"note": null
+						}
+					],
+					"origin": "host",
+					"conversationId": "cm1conv0001"
+				}
+			},
+			"expectData": {
+				"lines": [
+					{
+						"lineId": "ln_0001",
+						"dishId": "dish_kafta",
+						"variantId": null,
+						"optionIds": [],
+						"externalId": "SKU-1042",
+						"variantExternalId": null,
+						"optionExternalIds": [],
+						"title": "Kafta plate",
+						"variantLabel": null,
+						"choices": [],
+						"unitPrice": "145000",
+						"currency": "LBP",
+						"imageUrl": "https://tamr.link/image-proxy/menu/kafta.webp",
+						"quantity": 2,
+						"note": null
+					}
+				],
+				"origin": "unknown",
+				"conversationId": "cm1conv0001"
+			}
+		},
+		{
+			"$comment": "A refusal reason the page does not know parses as other.",
+			"direction": "hostToPage",
+			"message": {
+				"v": 1,
+				"id": "open_0011",
+				"type": "reply",
+				"ts": 1792310400011,
+				"data": {
+					"ok": true,
+					"lines": [
+						{
+							"lineId": "ln_0001",
+							"ok": false,
+							"reason": "too_spicy"
+						}
+					]
+				},
+				"replyTo": "add_0001"
+			},
+			"expectData": {
+				"ok": true,
+				"lines": [
+					{
+						"lineId": "ln_0001",
+						"ok": false,
+						"reason": "other"
+					}
+				]
+			}
+		}
+	]
+}

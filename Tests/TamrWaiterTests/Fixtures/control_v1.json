@@ -1,0 +1,243 @@
+{
+	"$comment": "What an app can do with an open chat beyond its look (docs/sdk/PLAN.md, Bridge protocol and Customisation). The shell sends context, starters, restrictions and locale again after every ready. restrictions can only add to the diner's own (Tamr's Allergen and DietaryTag values, lower case); an empty starters list brings the restaurant's own back.",
+	"hostToPage": [
+		{
+			"v": 1,
+			"id": "msg_0070",
+			"type": "context",
+			"ts": 1792310470000,
+			"data": {
+				"branch": "achrafieh",
+				"mode": "dine_in",
+				"table": "12",
+				"currency": "LBP"
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0071",
+			"type": "context",
+			"ts": 1792310471000,
+			"data": {
+				"mode": "delivery"
+			}
+		},
+		{
+			"$comment": "The table the diner scanned in the app (#457): the page seats them there with Tamr; table stays a hint.",
+			"v": 1,
+			"id": "msg_0072",
+			"type": "context",
+			"ts": 1792310472000,
+			"data": {
+				"branch": "achrafieh",
+				"mode": "dine_in",
+				"table": "12",
+				"tableScan": "https://tamr.link/m/cedar-house/dinner?b=achrafieh&t=12&s=qr"
+			}
+		},
+		{
+			"v": 1,
+			"id": "send_0001",
+			"type": "chat.send",
+			"ts": 1792310472000,
+			"data": {
+				"text": "Something high in protein under 20 dollars?"
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0073",
+			"type": "chat.new",
+			"ts": 1792310473000,
+			"data": {}
+		},
+		{
+			"v": 1,
+			"id": "msg_0074",
+			"type": "starters",
+			"ts": 1792310474000,
+			"data": {
+				"items": [
+					{
+						"label": "What's good today?"
+					},
+					{
+						"label": "Vegan options",
+						"prompt": "Which dishes are vegan?"
+					}
+				]
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0075",
+			"type": "starters",
+			"ts": 1792310475000,
+			"data": {
+				"items": []
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0076",
+			"type": "locale",
+			"ts": 1792310476000,
+			"data": {
+				"locale": "ar"
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0077",
+			"type": "locale",
+			"ts": 1792310477000,
+			"data": {
+				"locale": "en-US"
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0078",
+			"type": "restrictions",
+			"ts": 1792310478000,
+			"data": {
+				"avoidAllergens": ["peanut", "sesame"],
+				"keepDiets": ["halal"]
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0079",
+			"type": "restrictions",
+			"ts": 1792310479000,
+			"data": {
+				"avoidAllergens": [],
+				"keepDiets": []
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0080",
+			"type": "review.request",
+			"ts": 1792310480000,
+			"data": {
+				"orderId": "EXT-ORDER-88",
+				"dishes": [
+					{
+						"externalId": "SKU-1042",
+						"title": "Kafta plate"
+					},
+					{
+						"dishId": "dish_bowl",
+						"title": "Build your bowl"
+					}
+				]
+			}
+		}
+	],
+	"pageToHost": [
+		{
+			"v": 1,
+			"id": "msg_0081",
+			"type": "reply",
+			"ts": 1792310481000,
+			"data": {
+				"ok": false,
+				"error": {
+					"code": "busy"
+				}
+			},
+			"replyTo": "send_0001"
+		}
+	],
+	"rejected": [
+		{
+			"$comment": "Seven starters.",
+			"v": 1,
+			"id": "msg_0082",
+			"type": "starters",
+			"ts": 1792310482000,
+			"data": {
+				"items": [
+					{
+						"label": "Q0"
+					},
+					{
+						"label": "Q1"
+					},
+					{
+						"label": "Q2"
+					},
+					{
+						"label": "Q3"
+					},
+					{
+						"label": "Q4"
+					},
+					{
+						"label": "Q5"
+					},
+					{
+						"label": "Q6"
+					}
+				]
+			}
+		},
+		{
+			"$comment": "Not one of Tamr's allergens.",
+			"v": 1,
+			"id": "msg_0083",
+			"type": "restrictions",
+			"ts": 1792310483000,
+			"data": {
+				"avoidAllergens": ["pork"],
+				"keepDiets": []
+			}
+		},
+		{
+			"$comment": "A blank message.",
+			"v": 1,
+			"id": "msg_0084",
+			"type": "chat.send",
+			"ts": 1792310484000,
+			"data": {
+				"text": "   "
+			}
+		},
+		{
+			"$comment": "Not a language tag.",
+			"v": 1,
+			"id": "msg_0085",
+			"type": "locale",
+			"ts": 1792310485000,
+			"data": {
+				"locale": "Arabic please"
+			}
+		},
+		{
+			"$comment": "A service mode Tamr does not have.",
+			"v": 1,
+			"id": "msg_0086",
+			"type": "context",
+			"ts": 1792310486000,
+			"data": {
+				"mode": "drive_through"
+			}
+		},
+		{
+			"$comment": "A review dish with no id.",
+			"v": 1,
+			"id": "msg_0087",
+			"type": "review.request",
+			"ts": 1792310487000,
+			"data": {
+				"orderId": "X",
+				"dishes": [
+					{
+						"title": "Kafta plate"
+					}
+				]
+			}
+		}
+	]
+}

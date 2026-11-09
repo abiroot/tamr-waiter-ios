@@ -1,0 +1,103 @@
+{
+	"$comment": "Debug mode (#439, docs/sdk/debug.md). A shell built with `debug: true` adds `debug=1` to the page's fragment and announces `log` in `host.hello`; the page then sends each line of its trace as a `log` message, and only then. The shell prints every `log` it gets as one line, `format.page` with the parsed level and message, through the app's `onLog` sink or else the platform's log, and its own lines as `format.shell`. `printed` pairs messages with the exact line every shell prints, byte for byte; an unknown level reads as `unknown`. Shells print the message as it came: they never parse or reword it.",
+	"chatUrl": {
+		"fragment": "debug",
+		"value": "1"
+	},
+	"hostCapability": "log",
+	"format": {
+		"page": "[tamr] page {level}: {message}",
+		"shell": "[tamr] shell: {message}"
+	},
+	"printed": [
+		{
+			"message": {
+				"v": 1,
+				"id": "dbg_0001",
+				"type": "log",
+				"ts": 1792310400000,
+				"data": {
+					"level": "info",
+					"message": "-> ready dbg_p1 to hello_1"
+				}
+			},
+			"line": "[tamr] page info: -> ready dbg_p1 to hello_1"
+		},
+		{
+			"message": {
+				"v": 1,
+				"id": "dbg_0002",
+				"type": "log",
+				"ts": 1792310401000,
+				"data": {
+					"level": "info",
+					"message": "press (touch) button \"Checkout\" at 186,812"
+				}
+			},
+			"line": "[tamr] page info: press (touch) button \"Checkout\" at 186,812"
+		},
+		{
+			"message": {
+				"v": 1,
+				"id": "dbg_0003",
+				"type": "log",
+				"ts": 1792310402000,
+				"data": {
+					"level": "warn",
+					"message": "POST /api/v1/cart/match: 409 in 88 ms"
+				}
+			},
+			"line": "[tamr] page warn: POST /api/v1/cart/match: 409 in 88 ms"
+		},
+		{
+			"message": {
+				"v": 1,
+				"id": "dbg_0004",
+				"type": "log",
+				"ts": 1792310403000,
+				"data": {
+					"level": "error",
+					"message": "uncaught: TypeError: Cannot read properties of undefined (https://tamr.link/assets/chat.js:12)"
+				}
+			},
+			"line": "[tamr] page error: uncaught: TypeError: Cannot read properties of undefined (https://tamr.link/assets/chat.js:12)"
+		},
+		{
+			"$comment": "A level from a newer page reads as unknown.",
+			"message": {
+				"v": 1,
+				"id": "dbg_0005",
+				"type": "log",
+				"ts": 1792310404000,
+				"data": {
+					"level": "debug",
+					"message": "x"
+				}
+			},
+			"line": "[tamr] page unknown: x"
+		}
+	],
+	"rejected": [
+		{
+			"$comment": "No message",
+			"v": 1,
+			"id": "dbg_0010",
+			"type": "log",
+			"ts": 1792310410000,
+			"data": {
+				"level": "info"
+			}
+		},
+		{
+			"$comment": "Over 2,000 characters is the page's bug, never cut by the shell",
+			"v": 1,
+			"id": "dbg_0011",
+			"type": "log",
+			"ts": 1792310411000,
+			"data": {
+				"level": "info",
+				"message": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+			}
+		}
+	]
+}

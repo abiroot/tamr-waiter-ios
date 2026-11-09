@@ -1,0 +1,304 @@
+{
+	"$comment": "What every shell implements on the host side (ADR 0007): which navigations the chat's webview allows, opens outside the app or blocks; how an origin is normalised; the waiter page's address; and the address a shell reloads. Only `key`, `branch`, `lang` and `appearance` go in the query (each value is its own cached document); `token`, `code`, `embed`, `sdk`, `table`, `mode` and `debug` go in the fragment, which never reaches a server, a cache or a log. Addresses are compared as origin, path, the set of query pairs and the set of fragment pairs; `error` means the input is refused.",
+	"navigation": {
+		"allowedOrigins": [
+			"https://tamr.link",
+			"https://cedar-house.tamr.link"
+		],
+		"chatPath": "/w/cedar-house",
+		"cases": [
+			{
+				"url": "https://tamr.link/w/cedar-house?branch=achrafieh#embed=flutter",
+				"isMainFrame": true,
+				"expect": "allow",
+				"$comment": "The waiter page on tamr.link."
+			},
+			{
+				"url": "https://TAMR.link:443/w/cedar-house",
+				"isMainFrame": true,
+				"expect": "allow",
+				"$comment": "Host case and the default port do not matter."
+			},
+			{
+				"url": "https://cedar-house.tamr.link/w/cedar-house",
+				"isMainFrame": true,
+				"expect": "allow",
+				"$comment": "The restaurant's own subdomain."
+			},
+			{
+				"url": "https://tamr.link/w/cedar-house/?lang=ar",
+				"isMainFrame": true,
+				"expect": "allow",
+				"$comment": "A path below the page, ignoring a trailing slash."
+			},
+			{
+				"url": "about:blank",
+				"isMainFrame": true,
+				"expect": "allow",
+				"$comment": "What a release loads."
+			},
+			{
+				"url": "about:blank",
+				"isMainFrame": false,
+				"expect": "allow"
+			},
+			{
+				"url": "https://tamr.link/legal/privacy",
+				"isMainFrame": true,
+				"expect": "openExternally",
+				"$comment": "Same host, not the waiter page: it would replace the chat with no way back."
+			},
+			{
+				"url": "https://tamr.link/m/cedar-house/main",
+				"isMainFrame": true,
+				"expect": "openExternally",
+				"$comment": "The restaurant's menu page is not the chat."
+			},
+			{
+				"url": "https://tamr.link/w/other-place",
+				"isMainFrame": true,
+				"expect": "openExternally",
+				"$comment": "Another restaurant's waiter."
+			},
+			{
+				"url": "https://tamr.link/w/cedar-house-2",
+				"isMainFrame": true,
+				"expect": "openExternally",
+				"$comment": "A path that only starts like the chat path."
+			},
+			{
+				"url": "https://tamr.link.evil.com/w/cedar-house",
+				"isMainFrame": true,
+				"expect": "openExternally",
+				"$comment": "Look-alike host."
+			},
+			{
+				"url": "http://tamr.link/w/cedar-house",
+				"isMainFrame": true,
+				"expect": "openExternally",
+				"$comment": "Same host, other scheme: another origin."
+			},
+			{
+				"url": "https://tamr.link:8443/w/cedar-house",
+				"isMainFrame": true,
+				"expect": "openExternally",
+				"$comment": "Same host, other port: another origin."
+			},
+			{
+				"url": "tel:+9611234567",
+				"isMainFrame": true,
+				"expect": "openExternally"
+			},
+			{
+				"url": "mailto:hello@cedar-house.com",
+				"isMainFrame": true,
+				"expect": "openExternally"
+			},
+			{
+				"url": "intent://scan/#Intent;scheme=zxing;end",
+				"isMainFrame": true,
+				"expect": "openExternally",
+				"$comment": "A main-frame tap on an app link the platform opens."
+			},
+			{
+				"url": "https://cedar-house.com/order",
+				"isMainFrame": false,
+				"expect": "openExternally",
+				"$comment": "target=_blank: iOS reports a new-window link as not the main frame; Android with multiple windows off delivers it as a main-frame navigation with the same result."
+			},
+			{
+				"url": "https://tamr.link/w/cedar-house",
+				"isMainFrame": false,
+				"expect": "openExternally",
+				"$comment": "A new window never replaces the chat, even with the chat's own address."
+			},
+			{
+				"url": "intent://scan/#Intent;scheme=zxing;end",
+				"isMainFrame": false,
+				"expect": "block",
+				"$comment": "A frame loading something that is not a web, tel: or mailto: link."
+			},
+			{
+				"url": "javascript:alert(1)",
+				"isMainFrame": true,
+				"expect": "block"
+			},
+			{
+				"url": "javascript:alert(1)",
+				"isMainFrame": false,
+				"expect": "block"
+			},
+			{
+				"url": "data:text/html,<p>hi</p>",
+				"isMainFrame": true,
+				"expect": "block"
+			},
+			{
+				"url": "data:text/html,<p>hi</p>",
+				"isMainFrame": false,
+				"expect": "block"
+			}
+		]
+	},
+	"origins": [
+		{
+			"url": "https://Tamr.Link:443/w/x?y",
+			"expect": "https://tamr.link"
+		},
+		{
+			"url": "https://cedar-house.tamr.link/w/cedar-house#token=abc",
+			"expect": "https://cedar-house.tamr.link"
+		},
+		{
+			"url": "http://10.0.2.2:3036/w/x",
+			"expect": "http://10.0.2.2:3036",
+			"$comment": "The Android emulator's address for the dev server."
+		},
+		{
+			"url": "http://localhost:80/w/x",
+			"expect": "http://localhost"
+		},
+		{
+			"url": "http://example.com:443/",
+			"expect": "http://example.com:443",
+			"$comment": "443 is the default port of https only."
+		},
+		{
+			"url": "tel:123",
+			"expect": null
+		},
+		{
+			"url": "mailto:hello@cedar-house.com",
+			"expect": null
+		},
+		{
+			"url": "about:blank",
+			"expect": null
+		},
+		{
+			"url": "javascript:alert(1)",
+			"expect": null
+		},
+		{
+			"url": "ftp://x.y",
+			"expect": null
+		}
+	],
+	"waiterUrl": [
+		{
+			"$comment": "A signed-in diner: the token and the client-only params in the fragment.",
+			"origin": "https://tamr.link",
+			"address": "cedar-house",
+			"query": {
+				"key": "tamr_pk_live_abababababababab",
+				"branch": "achrafieh",
+				"lang": "ar"
+			},
+			"fragment": {
+				"token": "aaaa.bbbb.cccc",
+				"embed": "flutter",
+				"sdk": "1.0.0",
+				"table": "12",
+				"mode": "dine_in"
+			},
+			"expect": "https://tamr.link/w/cedar-house?key=tamr_pk_live_abababababababab&branch=achrafieh&lang=ar#token=aaaa.bbbb.cccc&embed=flutter&sdk=1.0.0&table=12&mode=dine_in"
+		},
+		{
+			"$comment": "A launch code, debug mode, a trailing slash on the origin.",
+			"origin": "https://tamr.link/",
+			"address": "cedar-house",
+			"query": {
+				"key": "tamr_pk_test_0000000000000000"
+			},
+			"fragment": {
+				"code": "lc_9f2c1b7a4e",
+				"embed": "ios",
+				"sdk": "1.2.0",
+				"debug": "1"
+			},
+			"expect": "https://tamr.link/w/cedar-house?key=tamr_pk_test_0000000000000000#code=lc_9f2c1b7a4e&embed=ios&sdk=1.2.0&debug=1"
+		},
+		{
+			"$comment": "Guest mode on the web: no token, no fragment beyond the shell. Built on tamr.link: /w/ on a restaurant's subdomain redirects there.",
+			"origin": "https://tamr.link",
+			"address": "cedar-house",
+			"query": {
+				"key": "tamr_pk_live_abababababababab"
+			},
+			"fragment": {
+				"embed": "web",
+				"sdk": "1.0.0"
+			},
+			"expect": "https://tamr.link/w/cedar-house?key=tamr_pk_live_abababababababab#embed=web&sdk=1.0.0"
+		},
+		{
+			"$comment": "The web iframe: the Web SDK names the parent origin, last in the fragment.",
+			"origin": "https://tamr.link",
+			"address": "cedar-house",
+			"query": {
+				"key": "tamr_pk_live_abababababababab"
+			},
+			"fragment": {
+				"embed": "web",
+				"sdk": "1.0.0",
+				"parent": "https://order.cedar-house.com"
+			},
+			"expect": "https://tamr.link/w/cedar-house?key=tamr_pk_live_abababababababab#embed=web&sdk=1.0.0&parent=https%3A%2F%2Forder.cedar-house.com"
+		},
+		{
+			"$comment": "A token and a code together are refused.",
+			"origin": "https://tamr.link",
+			"address": "cedar-house",
+			"query": {},
+			"fragment": {
+				"token": "a.b.c",
+				"code": "lc_1"
+			},
+			"expect": "error"
+		},
+		{
+			"$comment": "An address that is not a restaurant's.",
+			"origin": "https://tamr.link",
+			"address": "Cedar House",
+			"query": {},
+			"fragment": {},
+			"expect": "error"
+		},
+		{
+			"$comment": "An app that scanned the table's code (#457): the scan rides in the fragment.",
+			"origin": "https://tamr.link",
+			"address": "cedar-house",
+			"query": {
+				"key": "tamr_pk_live_abababababababab",
+				"branch": "achrafieh"
+			},
+			"fragment": {
+				"embed": "ios",
+				"sdk": "1.1.0",
+				"mode": "dine_in",
+				"tableScan": "https://tamr.link/m/cedar-house/dinner?b=achrafieh&t=12&s=qr"
+			},
+			"expect": "https://tamr.link/w/cedar-house?key=tamr_pk_live_abababababababab&branch=achrafieh#embed=ios&sdk=1.1.0&mode=dine_in&tableScan=https%3A%2F%2Ftamr.link%2Fm%2Fcedar-house%2Fdinner%3Fb%3Dachrafieh%26t%3D12%26s%3Dqr"
+		}
+	],
+	"relaunchUrl": [
+		{
+			"$comment": "The token is gone (each works once) and the branch of the last ready is pinned.",
+			"url": "https://tamr.link/w/cedar-house?key=tamr_pk_live_abababababababab#token=a.b.c&embed=android&sdk=1.0.0",
+			"lastReadyBranch": "achrafieh",
+			"expect": "https://tamr.link/w/cedar-house?key=tamr_pk_live_abababababababab&branch=achrafieh#embed=android&sdk=1.0.0"
+		},
+		{
+			"$comment": "A branch already in the address stays.",
+			"url": "https://tamr.link/w/cedar-house?branch=hamra#code=lc_1&embed=ios",
+			"lastReadyBranch": "achrafieh",
+			"expect": "https://tamr.link/w/cedar-house?branch=hamra#embed=ios"
+		},
+		{
+			"$comment": "No branch in the last ready: nothing pinned.",
+			"url": "https://tamr.link/w/cedar-house#embed=web",
+			"lastReadyBranch": null,
+			"expect": "https://tamr.link/w/cedar-house#embed=web"
+		}
+	]
+}

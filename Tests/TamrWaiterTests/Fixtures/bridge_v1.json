@@ -1,0 +1,384 @@
+{
+	"$comment": "Bridge envelope v1: the handshake and the chat's lifecycle (docs/sdk/PLAN.md, Bridge protocol; ADR 0005). Canonical copy in packages/sdk-contract/fixtures, checked against the zod schemas by src/__tests__/contract.test.ts; every SDK keeps a byte-identical copy (#430). `unknown` holds well-formed messages of types this version does not know: a parser drops them, never fails. Keys starting with $ are comments.",
+	"hostToPage": [
+		{
+			"v": 1,
+			"id": "hello_0001",
+			"type": "host.hello",
+			"ts": 1792310401000,
+			"data": {
+				"sdk": "1.0.0",
+				"platform": "flutter",
+				"osVersion": "iOS 26.1",
+				"capabilities": [
+					"identity",
+					"cart",
+					"visibility",
+					"microphone",
+					"log"
+				]
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0002",
+			"type": "host.hello",
+			"ts": 1792310402000,
+			"data": {
+				"sdk": "1.0.0",
+				"platform": "web",
+				"capabilities": []
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0003",
+			"type": "visibility",
+			"ts": 1792310403000,
+			"data": {
+				"shown": true,
+				"at": 1792310400500
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0004",
+			"type": "visibility",
+			"ts": 1792310404000,
+			"data": {
+				"shown": false
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0005",
+			"type": "reply",
+			"ts": 1792310405000,
+			"data": {
+				"ok": true
+			},
+			"replyTo": "msg_9001"
+		},
+		{
+			"v": 1,
+			"id": "msg_0006",
+			"type": "reply",
+			"ts": 1792310406000,
+			"data": {
+				"ok": false,
+				"error": {
+					"code": "unsupported",
+					"message": "The app set no onCheckout callback"
+				}
+			},
+			"replyTo": "msg_9002"
+		}
+	],
+	"pageToHost": [
+		{
+			"v": 1,
+			"id": "msg_0007",
+			"type": "ready",
+			"ts": 1792310407000,
+			"data": {
+				"org": "cedar-house",
+				"branch": "achrafieh",
+				"conversationId": "cm1conv0001",
+				"capabilities": [
+					"identity",
+					"cart",
+					"visibility",
+					"context",
+					"appearance",
+					"text",
+					"starters",
+					"locale",
+					"restrictions",
+					"chat.send",
+					"chat.new",
+					"review",
+					"state"
+				]
+			},
+			"replyTo": "hello_0001"
+		},
+		{
+			"v": 1,
+			"id": "msg_0008",
+			"type": "ready",
+			"ts": 1792310408000,
+			"data": {
+				"org": "cedar-house",
+				"branch": null,
+				"conversationId": null,
+				"capabilities": []
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0009",
+			"type": "painted",
+			"ts": 1792310409000,
+			"data": {}
+		},
+		{
+			"v": 1,
+			"id": "msg_0010",
+			"type": "timing",
+			"ts": 1792310410000,
+			"data": {
+				"navigationStart": 1792310400000,
+				"firstPaint": 180,
+				"bridgeReady": 420,
+				"interactive": 610,
+				"open": 95,
+				"preloaded": true
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0011",
+			"type": "timing",
+			"ts": 1792310411000,
+			"data": {
+				"navigationStart": 1792310400000,
+				"firstPaint": 900,
+				"bridgeReady": 1300,
+				"interactive": 1500,
+				"preloaded": false
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0012",
+			"type": "state",
+			"ts": 1792310412000,
+			"data": {
+				"view": "welcome",
+				"busy": false,
+				"itemCount": 0,
+				"conversationId": null
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0013",
+			"type": "state",
+			"ts": 1792310413000,
+			"data": {
+				"view": "conversation",
+				"busy": true,
+				"itemCount": 3,
+				"conversationId": "cm1conv0001"
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0014",
+			"type": "close",
+			"ts": 1792310414000,
+			"data": {}
+		},
+		{
+			"v": 1,
+			"id": "msg_0015",
+			"type": "log",
+			"ts": 1792310415000,
+			"data": {
+				"level": "info",
+				"message": "-> cart.add msg_0042"
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0016",
+			"type": "reply",
+			"ts": 1792310416000,
+			"data": {
+				"ok": true
+			},
+			"replyTo": "msg_9003"
+		}
+	],
+	"unknown": [
+		{
+			"v": 1,
+			"id": "msg_0017",
+			"type": "loyalty.points",
+			"ts": 1792310417000,
+			"data": {
+				"points": 120
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0018",
+			"type": "platter.updated",
+			"ts": 1792310418000,
+			"data": {
+				"slots": []
+			}
+		}
+	],
+	"rejected": [
+		{
+			"$comment": "Envelope v2 does not exist.",
+			"v": 2,
+			"id": "msg_0019",
+			"type": "ready",
+			"ts": 1792310419000,
+			"data": {
+				"org": "cedar-house",
+				"branch": null,
+				"conversationId": null,
+				"capabilities": []
+			}
+		},
+		{
+			"$comment": "No id.",
+			"v": 1,
+			"type": "painted",
+			"ts": 1792310400000,
+			"data": {}
+		},
+		{
+			"$comment": "ready without capabilities.",
+			"v": 1,
+			"id": "msg_0020",
+			"type": "ready",
+			"ts": 1792310420000,
+			"data": {
+				"org": "cedar-house",
+				"branch": null,
+				"conversationId": null
+			}
+		},
+		{
+			"$comment": "A version with a prerelease suffix.",
+			"v": 1,
+			"id": "msg_0021",
+			"type": "host.hello",
+			"ts": 1792310421000,
+			"data": {
+				"sdk": "1.0.0-beta.1",
+				"platform": "ios",
+				"capabilities": []
+			}
+		},
+		{
+			"$comment": "An unknown platform.",
+			"v": 1,
+			"id": "msg_0022",
+			"type": "host.hello",
+			"ts": 1792310422000,
+			"data": {
+				"sdk": "1.0.0",
+				"platform": "windows",
+				"capabilities": []
+			}
+		},
+		{
+			"$comment": "A timing mark over an hour.",
+			"v": 1,
+			"id": "msg_0023",
+			"type": "timing",
+			"ts": 1792310423000,
+			"data": {
+				"navigationStart": 1792310400000,
+				"firstPaint": 4000000,
+				"bridgeReady": 1,
+				"interactive": 1,
+				"preloaded": false
+			}
+		},
+		{
+			"$comment": "A reply that is neither ok nor an error.",
+			"v": 1,
+			"id": "msg_0024",
+			"type": "reply",
+			"ts": 1792310424000,
+			"data": {
+				"ok": false
+			},
+			"replyTo": "msg_9004"
+		},
+		{
+			"$comment": "A view that is null still fails.",
+			"v": 1,
+			"id": "open_0033",
+			"type": "state",
+			"ts": 1792310400033,
+			"data": {
+				"view": null,
+				"busy": false,
+				"itemCount": 0,
+				"conversationId": null
+			}
+		}
+	],
+	"lenient": [
+		{
+			"$comment": "A view this SDK does not know parses as unknown.",
+			"direction": "pageToHost",
+			"message": {
+				"v": 1,
+				"id": "open_0030",
+				"type": "state",
+				"ts": 1792310400030,
+				"data": {
+					"view": "menu",
+					"busy": false,
+					"itemCount": 0,
+					"conversationId": null
+				}
+			},
+			"expectData": {
+				"view": "unknown",
+				"busy": false,
+				"itemCount": 0,
+				"conversationId": null
+			}
+		},
+		{
+			"$comment": "A log level this SDK does not know parses as unknown.",
+			"direction": "pageToHost",
+			"message": {
+				"v": 1,
+				"id": "open_0031",
+				"type": "log",
+				"ts": 1792310400031,
+				"data": {
+					"level": "debug",
+					"message": "x"
+				}
+			},
+			"expectData": {
+				"level": "unknown",
+				"message": "x"
+			}
+		},
+		{
+			"$comment": "An error code this SDK does not know parses as failed.",
+			"direction": "pageToHost",
+			"message": {
+				"v": 1,
+				"id": "open_0032",
+				"type": "reply",
+				"ts": 1792310400032,
+				"data": {
+					"ok": false,
+					"error": {
+						"code": "rate_limited"
+					}
+				},
+				"replyTo": "msg_9005"
+			},
+			"expectData": {
+				"ok": false,
+				"error": {
+					"code": "failed"
+				}
+			}
+		}
+	]
+}

@@ -1,0 +1,592 @@
+{
+	"$comment": "Webhook bodies Tamr sends a host's backend (#441; docs/sdk/webhooks.md), signed per the Standard Webhooks spec: the event id travels in the webhook-id header, the body is { type, timestamp, livemode, data }. Ids and enums only: no message text, nothing the diner typed, no names, phones or emails.",
+	"conversationEnded": {
+		"valid": [
+			{
+				"type": "conversation.ended",
+				"timestamp": "2026-11-02T19:42:10.000Z",
+				"livemode": true,
+				"data": {
+					"conversationId": "conv_0001",
+					"appKeyId": "key_01",
+					"externalUserId": "user-88213",
+					"branch": "achrafieh",
+					"reason": "resolved",
+					"startedAt": "2026-11-02T19:05:00.000Z",
+					"endedAt": "2026-11-02T19:42:10.000Z",
+					"staffCalled": true,
+					"messageCount": 14
+				}
+			},
+			{
+				"$comment": "A guest on a test key, gone quiet.",
+				"type": "conversation.ended",
+				"timestamp": "2026-11-02T20:15:00.000Z",
+				"livemode": false,
+				"data": {
+					"conversationId": "conv_0002",
+					"appKeyId": "key_02",
+					"externalUserId": null,
+					"branch": null,
+					"reason": "idle",
+					"startedAt": "2026-11-02T19:58:00.000Z",
+					"endedAt": "2026-11-02T20:15:00.000Z",
+					"staffCalled": false,
+					"messageCount": 3
+				}
+			},
+			{
+				"$comment": "A reason from a newer server reads as unknown.",
+				"type": "conversation.ended",
+				"timestamp": "2026-11-02T21:00:00.000Z",
+				"livemode": true,
+				"data": {
+					"conversationId": "conv_0003",
+					"appKeyId": "key_01",
+					"externalUserId": "user-1",
+					"branch": "achrafieh",
+					"reason": "closed_by_host",
+					"startedAt": "2026-11-02T20:30:00.000Z",
+					"endedAt": "2026-11-02T21:00:00.000Z",
+					"staffCalled": false,
+					"messageCount": 0
+				}
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No livemode.",
+				"type": "conversation.ended",
+				"timestamp": "2026-11-02T19:42:10.000Z",
+				"data": {
+					"conversationId": "conv_0001",
+					"appKeyId": "key_01",
+					"externalUserId": null,
+					"branch": null,
+					"reason": "idle",
+					"startedAt": "2026-11-02T19:05:00.000Z",
+					"endedAt": "2026-11-02T19:42:10.000Z",
+					"staffCalled": false,
+					"messageCount": 1
+				}
+			}
+		]
+	},
+	"cartProposed": {
+		"valid": [
+			{
+				"type": "cart.proposed",
+				"timestamp": "2026-11-02T19:20:00.000Z",
+				"livemode": true,
+				"data": {
+					"conversationId": "conv_0001",
+					"externalUserId": "user-88213",
+					"proposalId": "prop_7f3a9c2e",
+					"lines": [
+						{
+							"lineId": "line_0001",
+							"dishId": "dish_kafta",
+							"variantId": null,
+							"optionIds": ["opt_garlic"],
+							"externalId": "SKU-1042",
+							"variantExternalId": null,
+							"optionExternalIds": [null],
+							"quantity": 2,
+							"unitPrice": "145000",
+							"currency": "LBP"
+						},
+						{
+							"$comment": "A set with its picks (#560).",
+							"lineId": "line_0002",
+							"dishId": "dish_roll_set",
+							"variantId": null,
+							"optionIds": [],
+							"externalId": null,
+							"variantExternalId": null,
+							"optionExternalIds": [],
+							"quantity": 1,
+							"unitPrice": "2400",
+							"currency": "USD",
+							"picks": [
+								{
+									"pickId": "pick_tuna",
+									"dishId": "dish_tuna_roll",
+									"variantId": "var_8pc",
+									"externalId": "SKU-77",
+									"variantExternalId": "SKU-77-8",
+									"pieces": 8,
+									"count": 2
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "A proposal with no line.",
+				"type": "cart.proposed",
+				"timestamp": "2026-11-02T19:20:00.000Z",
+				"livemode": true,
+				"data": {
+					"conversationId": "conv_0001",
+					"externalUserId": null,
+					"proposalId": "prop_1",
+					"lines": []
+				}
+			},
+			{
+				"$comment": "Host option ids that do not line up with Tamr's.",
+				"type": "cart.proposed",
+				"timestamp": "2026-11-02T19:20:00.000Z",
+				"livemode": true,
+				"data": {
+					"conversationId": "conv_0001",
+					"externalUserId": null,
+					"proposalId": "prop_1",
+					"lines": [
+						{
+							"lineId": "line_0001",
+							"dishId": "dish_kafta",
+							"variantId": null,
+							"optionIds": ["opt_garlic"],
+							"externalId": null,
+							"variantExternalId": null,
+							"optionExternalIds": [],
+							"quantity": 1,
+							"unitPrice": "145000",
+							"currency": "LBP"
+						}
+					]
+				}
+			}
+		]
+	},
+	"staffRequested": {
+		"valid": [
+			{
+				"type": "staff.requested",
+				"timestamp": "2026-11-02T19:30:00.000Z",
+				"livemode": true,
+				"data": {
+					"conversationId": "conv_0001",
+					"externalUserId": "user-88213",
+					"branch": "achrafieh",
+					"table": "12",
+					"source": "escalation",
+					"reason": "allergen_severe",
+					"urgency": "high"
+				}
+			},
+			{
+				"type": "staff.requested",
+				"timestamp": "2026-11-02T19:31:00.000Z",
+				"livemode": false,
+				"data": {
+					"conversationId": "conv_0002",
+					"externalUserId": null,
+					"branch": null,
+					"table": null,
+					"source": "request",
+					"kind": "water"
+				}
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "A source that is not a string.",
+				"type": "staff.requested",
+				"timestamp": "2026-11-02T19:31:00.000Z",
+				"livemode": true,
+				"data": {
+					"conversationId": "conv_0002",
+					"externalUserId": null,
+					"branch": null,
+					"table": null,
+					"source": 2
+				}
+			}
+		]
+	},
+	"reviewSubmitted": {
+		"valid": [
+			{
+				"type": "review.submitted",
+				"timestamp": "2026-11-03T12:00:00.000Z",
+				"livemode": true,
+				"data": {
+					"reviewId": "rev_0001",
+					"externalUserId": "user-88213",
+					"externalOrderId": "A-99812",
+					"conversationId": null,
+					"dishId": "dish_kafta",
+					"externalId": "SKU-1042",
+					"rating": 5,
+					"submittedAt": "2026-11-03T12:00:00.000Z"
+				}
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "A rating out of range.",
+				"type": "review.submitted",
+				"timestamp": "2026-11-03T12:00:00.000Z",
+				"livemode": true,
+				"data": {
+					"reviewId": "rev_0001",
+					"externalUserId": "user-88213",
+					"externalOrderId": null,
+					"conversationId": null,
+					"dishId": "dish_kafta",
+					"externalId": null,
+					"rating": 6,
+					"submittedAt": "2026-11-03T12:00:00.000Z"
+				}
+			}
+		]
+	},
+	"bookingMade": {
+		"valid": [
+			{
+				"type": "booking.made",
+				"timestamp": "2026-11-03T14:10:00.000Z",
+				"livemode": true,
+				"data": {
+					"conversationId": "conv_01",
+					"externalUserId": "user-88213",
+					"bookingId": "res_01",
+					"branch": "achrafieh",
+					"date": "2026-11-07",
+					"time": "20:30",
+					"partySize": 4,
+					"status": "confirmed"
+				}
+			},
+			{
+				"$comment": "A location that confirms by hand: a request, and a guest diner (no host user).",
+				"type": "booking.made",
+				"timestamp": "2026-11-03T14:12:00.000Z",
+				"livemode": false,
+				"data": {
+					"conversationId": "conv_01",
+					"externalUserId": null,
+					"bookingId": "res_02",
+					"branch": "achrafieh",
+					"date": "2026-11-07",
+					"time": "20:30",
+					"partySize": 4,
+					"status": "requested"
+				}
+			},
+			{
+				"$comment": "A status this version doesn't know reads as unknown.",
+				"type": "booking.made",
+				"timestamp": "2026-11-03T14:13:00.000Z",
+				"livemode": true,
+				"data": {
+					"conversationId": "conv_01",
+					"externalUserId": "user-88213",
+					"bookingId": "res_03",
+					"branch": "achrafieh",
+					"date": "2026-11-07",
+					"time": "20:30",
+					"partySize": 4,
+					"status": "seated"
+				}
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "The display time, not HH:MM.",
+				"type": "booking.made",
+				"timestamp": "2026-11-03T14:10:00.000Z",
+				"livemode": true,
+				"data": {
+					"conversationId": "conv_01",
+					"externalUserId": "user-88213",
+					"bookingId": "res_01",
+					"branch": "achrafieh",
+					"date": "2026-11-07",
+					"time": "8:30 PM",
+					"partySize": 4,
+					"status": "confirmed"
+				}
+			},
+			{
+				"$comment": "No booking id.",
+				"type": "booking.made",
+				"timestamp": "2026-11-03T14:10:00.000Z",
+				"livemode": true,
+				"data": {
+					"conversationId": "conv_01",
+					"externalUserId": "user-88213",
+					"branch": "achrafieh",
+					"date": "2026-11-07",
+					"time": "20:30",
+					"partySize": 4,
+					"status": "confirmed"
+				}
+			}
+		]
+	},
+	"bookingChanged": {
+		"valid": [
+			{
+				"$comment": "Moved to another time.",
+				"type": "booking.changed",
+				"timestamp": "2026-11-03T15:00:00.000Z",
+				"livemode": true,
+				"data": {
+					"conversationId": "conv_01",
+					"externalUserId": "user-88213",
+					"bookingId": "res_01",
+					"branch": "achrafieh",
+					"date": "2026-11-07",
+					"time": "21:00",
+					"partySize": 4,
+					"status": "confirmed"
+				}
+			},
+			{
+				"$comment": "Cancelled.",
+				"type": "booking.changed",
+				"timestamp": "2026-11-03T15:05:00.000Z",
+				"livemode": true,
+				"data": {
+					"conversationId": "conv_01",
+					"externalUserId": "user-88213",
+					"bookingId": "res_01",
+					"branch": "achrafieh",
+					"date": "2026-11-07",
+					"time": "20:30",
+					"partySize": 4,
+					"status": "cancelled"
+				}
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No conversation: only a booking the waiter wrote in an app conversation sends one.",
+				"type": "booking.changed",
+				"timestamp": "2026-11-03T15:00:00.000Z",
+				"livemode": true,
+				"data": {
+					"externalUserId": "user-88213",
+					"bookingId": "res_01",
+					"branch": "achrafieh",
+					"date": "2026-11-07",
+					"time": "20:30",
+					"partySize": 4,
+					"status": "cancelled"
+				}
+			}
+		]
+	},
+	"orderPlaced": {
+		"valid": [
+			{
+				"type": "order.placed",
+				"timestamp": "2026-11-04T19:42:00.000Z",
+				"livemode": true,
+				"data": {
+					"externalUserId": "user-88213",
+					"conversationId": "conv_01",
+					"orderId": "ord_01",
+					"number": 17,
+					"status": "sent",
+					"branch": "achrafieh",
+					"table": "12",
+					"currency": "USD",
+					"subtotal": "2450",
+					"lines": [
+						{
+							"dishId": "dish_kafta",
+							"externalId": "SKU-KAFTA",
+							"quantity": 2,
+							"unitPrice": "900"
+						},
+						{
+							"dishId": "dish_fattoush",
+							"externalId": null,
+							"quantity": 1,
+							"unitPrice": "650"
+						}
+					]
+				}
+			},
+			{
+				"$comment": "A guest with no conversation, and a status this client doesn't know yet: it reads as unknown.",
+				"type": "order.placed",
+				"timestamp": "2026-11-04T19:50:00.000Z",
+				"livemode": true,
+				"data": {
+					"externalUserId": null,
+					"conversationId": null,
+					"orderId": "ord_02",
+					"number": 18,
+					"status": "on_hold",
+					"branch": "achrafieh",
+					"table": "4",
+					"currency": "LBP",
+					"subtotal": "1500000",
+					"lines": [
+						{
+							"dishId": "dish_kafta",
+							"externalId": null,
+							"quantity": 1,
+							"unitPrice": "1500000"
+						}
+					]
+				}
+			},
+			{
+				"type": "order.placed",
+				"timestamp": "2026-11-04T19:42:00.000Z",
+				"livemode": true,
+				"data": {
+					"externalUserId": "user-88213",
+					"conversationId": "conv_01",
+					"orderId": "ord_0600",
+					"number": 24,
+					"status": "sent",
+					"branch": "achrafieh",
+					"table": null,
+					"currency": "USD",
+					"subtotal": "2450",
+					"lines": [
+						{
+							"dishId": "dish_kafta",
+							"externalId": "SKU-KAFTA",
+							"quantity": 2,
+							"unitPrice": "900"
+						},
+						{
+							"dishId": "dish_fattoush",
+							"externalId": null,
+							"quantity": 1,
+							"unitPrice": "650"
+						}
+					],
+					"fulfilment": "pickup",
+					"pickupAt": "2026-11-09T07:00:00.000Z",
+					"pickupCode": "5310"
+				},
+				"$comment": "A pickup paid ahead (#599), sent once it was paid: its time and code, never the name or phone."
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No lines.",
+				"type": "order.placed",
+				"timestamp": "2026-11-04T19:50:00.000Z",
+				"livemode": true,
+				"data": {
+					"externalUserId": null,
+					"conversationId": null,
+					"orderId": "ord_03",
+					"number": 19,
+					"status": "sent",
+					"branch": "achrafieh",
+					"table": "4",
+					"currency": "USD",
+					"subtotal": "0",
+					"lines": []
+				}
+			},
+			{
+				"type": "order.placed",
+				"timestamp": "2026-11-04T19:42:00.000Z",
+				"livemode": true,
+				"data": {
+					"externalUserId": "user-88213",
+					"conversationId": "conv_01",
+					"orderId": "ord_0600",
+					"number": 24,
+					"status": "sent",
+					"branch": "achrafieh",
+					"table": null,
+					"currency": "USD",
+					"subtotal": "2450",
+					"lines": [
+						{
+							"dishId": "dish_kafta",
+							"externalId": "SKU-KAFTA",
+							"quantity": 2,
+							"unitPrice": "900"
+						},
+						{
+							"dishId": "dish_fattoush",
+							"externalId": null,
+							"quantity": 1,
+							"unitPrice": "650"
+						}
+					],
+					"fulfilment": "pickup",
+					"pickupAt": "2026-11-09T07:00:00.000Z",
+					"pickupCode": ""
+				},
+				"$comment": "An empty pickup code."
+			}
+		]
+	},
+	"paymentCompleted": {
+		"valid": [
+			{
+				"type": "payment.completed",
+				"timestamp": "2026-11-05T20:03:12.000Z",
+				"livemode": true,
+				"data": {
+					"externalUserId": "user-88213",
+					"conversationId": "conv_01",
+					"paymentId": "pay_0002",
+					"reference": "TP-7K2M9QXA",
+					"amount": "2640",
+					"tip": "240",
+					"currency": "USD",
+					"orderId": null,
+					"branch": "achrafieh",
+					"table": "12"
+				}
+			},
+			{
+				"$comment": "A guest's typed amount at no table, in LBP.",
+				"type": "payment.completed",
+				"timestamp": "2026-11-05T20:10:00.000Z",
+				"livemode": true,
+				"data": {
+					"externalUserId": null,
+					"conversationId": null,
+					"paymentId": "pay_0003",
+					"reference": "TP-2B8NW4RT",
+					"amount": "1500000",
+					"tip": "0",
+					"currency": "LBP",
+					"orderId": null,
+					"branch": "achrafieh",
+					"table": null
+				}
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "A decimal amount.",
+				"type": "payment.completed",
+				"timestamp": "2026-11-05T20:10:00.000Z",
+				"livemode": true,
+				"data": {
+					"externalUserId": null,
+					"conversationId": null,
+					"paymentId": "pay_0004",
+					"reference": "TP-1",
+					"amount": "15.00",
+					"tip": "0",
+					"currency": "USD",
+					"orderId": null,
+					"branch": "achrafieh",
+					"table": null
+				}
+			}
+		]
+	}
+}
