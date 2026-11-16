@@ -79,9 +79,27 @@ public final class TamrWaiterController: ObservableObject {
         guard let origin = Address.origin(of: host) else {
             throw TamrWaiterError("host must be an http(s) URL")
         }
+        // The contract's check of what the app sends (#614), for this controller: one warning per
+        // message type and field, to onLog or the system log, printed even without debug.
+        let check = HostCheck { line in
+            if let onLog {
+                onLog(line)
+            } else {
+                TamrWaiterController.logger.error("\(line, privacy: .public)")
+            }
+        }
+        // These values go through the same check as the setters: a Debug build stops here.
+        let lang = locale.flatMap { check.admit(LocaleMessage(data: LocaleData(locale: $0))) ? $0 : nil }
+        if let appearance {
+            // Patch fields: sent as they are, and the page drops a bad one alone.
+            check.admit(AppearanceMessage(data: appearance))
+        }
+        let placed = (branch == nil && table == nil && tableScan == nil && mode == nil)
+            || check.admit(ContextMessage(data: ContextData(branch: branch, mode: mode, table: table, tableScan: tableScan)))
         url = try Address.shellURL(
-            host: host, address: restaurant, key: appKey, branch: branch, locale: locale, appearance: appearance,
-            launch: launch, table: table, tableScan: tableScan, mode: mode, debug: debug
+            host: host, address: restaurant, key: appKey, branch: placed ? branch : nil, locale: lang,
+            appearance: appearance, launch: launch, table: placed ? table : nil, tableScan: placed ? tableScan : nil,
+            mode: placed ? mode : nil, debug: debug
         )
         allowedOrigins = [origin]
         chatPath = "/w/\(restaurant)"
@@ -127,7 +145,9 @@ public final class TamrWaiterController: ObservableObject {
             emit: { [unowned self] message in emit(message) },
             debug: debug,
             log: { [unowned self] line in write(line) },
-            osVersion: UIDevice.current.systemVersion
+            check: check,
+            osVersion: UIDevice.current.systemVersion,
+            appId: Bundle.main.bundleIdentifier
         )
         let center = NotificationCenter.default
         observers = [
@@ -189,8 +209,17 @@ public final class TamrWaiterController: ObservableObject {
     public func setStarters(_ starters: [Starter]) { bridge.keep(StartersMessage(data: StartersData(items: starters))) }
     /// Allergens and diets every reply respects; they only ever tighten what the restaurant set.
     public func setRestrictions(_ restrictions: RestrictionsData) { bridge.keep(RestrictionsMessage(data: restrictions)) }
+    /// The diner's nutrition goal as your app keeps it, per meal: while it's set it wins over the one
+    /// the diner keeps, and the waiter says to change it in your app. `nil` stops setting one.
+    public func setGoal(_ goal: Goal?) { bridge.keep(GoalMessage(data: GoalData(goal: goal))) }
     /// Your cart, so the waiter's matches it.
     public func sendCart(_ lines: [SnapshotLine]) { bridge.send(CartSnapshotMessage(data: CartSnapshotData(lines: lines))) }
+    /// After an order is served, asks the diner how each dish was (#453). The order must be one
+    /// your backend sent (`POST /api/v1/sdk/orders`) for this diner; the chat opens its review sheet
+    /// when it's shown, and `review.submitted` says what they rated. Held until the page is ready.
+    public func requestReview(orderId: String, dishes: [ReviewDish]) {
+        bridge.send(ReviewRequestMessage(data: ReviewRequestData(orderId: orderId, dishes: dishes)))
+    }
     /// Sends `text` as the diner's message, as if they typed it.
     public func sendMessage(_ text: String) { bridge.send(ChatSendMessage(data: ChatSendData(text: text))) }
     /// Starts a new conversation.

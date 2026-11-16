@@ -1,0 +1,430 @@
+{
+	"$comment": "What the contract refuses in a message from the app, field by field (#614; PLAN.md, One validation rule for all platforms). Each SDK's generated check (hostMessageProblems, internal to the SDK) must give exactly `problems` for `message`: the field, dotted; the rule (format, length, count, range or value); and whether the page drops the field alone (isPatch, for appearance and text) or refuses the whole message. The cases pin where regex engines and string lengths differ. `decodes: false`: the generated decoders refuse the message. `refine`: fields the page refuses by a .refine, left to the page.",
+	"cases": [
+		{
+			"$comment": "A clean message has no problems.",
+			"message": {
+				"v": 1,
+				"id": "msg_0401",
+				"type": "theme",
+				"ts": 1792310401000,
+				"data": {
+					"scheme": "dark"
+				}
+			},
+			"problems": []
+		},
+		{
+			"$comment": "A colour with a newline after it. ICU's $ matches before a final newline, so a match counts only when it covers the whole string.",
+			"message": {
+				"v": 1,
+				"id": "msg_0402",
+				"type": "appearance",
+				"ts": 1792310402000,
+				"data": {
+					"accent": "#aabbcc\n",
+					"paper": "#AABBCC",
+					"corners": "soft"
+				}
+			},
+			"problems": [
+				{
+					"field": "accent",
+					"rule": "format",
+					"isPatch": true
+				}
+			]
+		},
+		{
+			"$comment": "Letters and digits of any script are a font name (\\p{L}, \\p{N}): Japanese, and an Arabic-Indic three.",
+			"message": {
+				"v": 1,
+				"id": "msg_0403",
+				"type": "appearance",
+				"ts": 1792310403000,
+				"data": {
+					"displayFont": "Noto Sans 日本",
+					"uiFont": "Cairo ٣"
+				}
+			},
+			"problems": []
+		},
+		{
+			"$comment": "Trimmed before it is measured: spaces alone are empty, spaces around a name are not counted.",
+			"message": {
+				"v": 1,
+				"id": "msg_0404",
+				"type": "appearance",
+				"ts": 1792310404000,
+				"data": {
+					"displayFont": "   ",
+					"uiFont": "  Roboto  "
+				}
+			},
+			"problems": [
+				{
+					"field": "displayFont",
+					"rule": "length",
+					"isPatch": true
+				}
+			]
+		},
+		{
+			"$comment": "Lengths are Unicode code points, as zod counts: not UTF-16 units (an emoji is two) and not characters (a thumbs-up with a skin tone is two code points). Forty emoji pass a 40 limit and forty-one fail it; twenty thumbs with a skin tone are 40 code points and pass, twenty-one are 42 and fail, in 21 characters.",
+			"message": {
+				"v": 1,
+				"id": "msg_0405",
+				"type": "text",
+				"ts": 1792310405000,
+				"data": {
+					"waiterName": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+					"placeholder": "   ",
+					"labels": {
+						"newChat": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+						"checkout": "👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽",
+						"callWaiter": "👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽👍🏽",
+						"thinking": "Thinking…"
+					}
+				}
+			},
+			"problems": [
+				{
+					"field": "placeholder",
+					"rule": "length",
+					"isPatch": true
+				},
+				{
+					"field": "labels.newChat",
+					"rule": "length",
+					"isPatch": true
+				},
+				{
+					"field": "labels.callWaiter",
+					"rule": "length",
+					"isPatch": true
+				}
+			]
+		},
+		{
+			"$comment": "Arabic-Indic digits are not \\d: JavaScript's \\d is ASCII, ICU's is every digit, so Swift reads [0-9].",
+			"message": {
+				"v": 1,
+				"id": "msg_0406",
+				"type": "host.hello",
+				"ts": 1792310406000,
+				"data": {
+					"sdk": "١.٠.٠",
+					"platform": "ios",
+					"capabilities": ["identity", "Log"]
+				}
+			},
+			"problems": [
+				{
+					"field": "sdk",
+					"rule": "format",
+					"isPatch": false
+				},
+				{
+					"field": "capabilities.1",
+					"rule": "format",
+					"isPatch": false
+				}
+			]
+		},
+		{
+			"$comment": "Seven starters: at most six.",
+			"message": {
+				"v": 1,
+				"id": "msg_0407",
+				"type": "starters",
+				"ts": 1792310407000,
+				"data": {
+					"items": [
+						{
+							"label": "Starter 1"
+						},
+						{
+							"label": "Starter 2"
+						},
+						{
+							"label": "Starter 3"
+						},
+						{
+							"label": "Starter 4"
+						},
+						{
+							"label": "Starter 5"
+						},
+						{
+							"label": "Starter 6"
+						},
+						{
+							"label": "Starter 7"
+						}
+					]
+				}
+			},
+			"problems": [
+				{
+					"field": "items",
+					"rule": "count",
+					"isPatch": false
+				}
+			]
+		},
+		{
+			"$comment": "A starter's label of spaces, and a prompt over 300 after trimming.",
+			"message": {
+				"v": 1,
+				"id": "msg_0408",
+				"type": "starters",
+				"ts": 1792310408000,
+				"data": {
+					"items": [
+						{
+							"label": "Wine"
+						},
+						{
+							"label": "   "
+						},
+						{
+							"label": "Mezze",
+							"prompt": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+						}
+					]
+				}
+			},
+			"problems": [
+				{
+					"field": "items.1.label",
+					"rule": "length",
+					"isPatch": false
+				},
+				{
+					"field": "items.2.prompt",
+					"rule": "length",
+					"isPatch": false
+				}
+			]
+		},
+		{
+			"$comment": "A table of 41 characters and a currency in lower case; the scan is trimmed.",
+			"message": {
+				"v": 1,
+				"id": "msg_0409",
+				"type": "context",
+				"ts": 1792310409000,
+				"data": {
+					"branch": "cedar-house",
+					"table": "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+					"currency": "usd",
+					"tableScan": "  T12  "
+				}
+			},
+			"problems": [
+				{
+					"field": "table",
+					"rule": "length",
+					"isPatch": false
+				},
+				{
+					"field": "currency",
+					"rule": "format",
+					"isPatch": false
+				}
+			]
+		},
+		{
+			"$comment": "A language's name is not a BCP 47 tag.",
+			"message": {
+				"v": 1,
+				"id": "msg_0410",
+				"type": "locale",
+				"ts": 1792310410000,
+				"data": {
+					"locale": "english"
+				}
+			},
+			"problems": [
+				{
+					"field": "locale",
+					"rule": "format",
+					"isPatch": false
+				}
+			]
+		},
+		{
+			"$comment": "An allergen this version doesn't know. Swift and TypeScript can build it (a struct with init(rawValue:), a string); Kotlin's and Dart's enums can't, and every generated decoder refuses it.",
+			"decodes": false,
+			"message": {
+				"v": 1,
+				"id": "msg_0411",
+				"type": "restrictions",
+				"ts": 1792310411000,
+				"data": {
+					"avoidAllergens": ["peanut", "celery"],
+					"keepDiets": ["vegan"]
+				}
+			},
+			"problems": [
+				{
+					"field": "avoidAllergens.1",
+					"rule": "value",
+					"isPatch": false
+				}
+			]
+		},
+		{
+			"$comment": "A quantity over 99, and a set's pick counted zero times.",
+			"message": {
+				"v": 1,
+				"id": "msg_0412",
+				"type": "cart.snapshot",
+				"ts": 1792310412000,
+				"data": {
+					"lines": [
+						{
+							"dishId": "dish_sushi_set",
+							"quantity": 100,
+							"picks": [
+								{
+									"pickId": "pk_salmon",
+									"count": 0
+								}
+							]
+						}
+					]
+				}
+			},
+			"problems": [
+				{
+					"field": "lines.0.quantity",
+					"rule": "range",
+					"isPatch": false
+				},
+				{
+					"field": "lines.0.picks.0.count",
+					"rule": "range",
+					"isPatch": false
+				}
+			]
+		},
+		{
+			"$comment": "A line naming its dish twice breaks a .refine, which never reaches the JSON Schema: the generated check passes it and the page refuses it (`refine`). Never a hand-written check in the SDKs.",
+			"message": {
+				"v": 1,
+				"id": "msg_0413",
+				"type": "cart.snapshot",
+				"ts": 1792310413000,
+				"data": {
+					"lines": [
+						{
+							"dishId": "dish_hummus",
+							"externalId": "SKU-HUMMUS",
+							"quantity": 1
+						}
+					]
+				}
+			},
+			"problems": [],
+			"refine": ["lines.0"]
+		},
+		{
+			"$comment": "Spaces alone are no message.",
+			"message": {
+				"v": 1,
+				"id": "msg_0414",
+				"type": "chat.send",
+				"ts": 1792310414000,
+				"data": {
+					"text": "   "
+				}
+			},
+			"problems": [
+				{
+					"field": "text",
+					"rule": "length",
+					"isPatch": false
+				}
+			]
+		},
+		{
+			"$comment": "A time before 1970.",
+			"message": {
+				"v": 1,
+				"id": "msg_0415",
+				"type": "visibility",
+				"ts": 1792310415000,
+				"data": {
+					"shown": true,
+					"at": -1
+				}
+			},
+			"problems": [
+				{
+					"field": "at",
+					"rule": "range",
+					"isPatch": false
+				}
+			]
+		},
+		{
+			"$comment": "The app's refusal in words over 300 characters.",
+			"message": {
+				"v": 1,
+				"id": "msg_0416",
+				"type": "reply",
+				"ts": 1792310416000,
+				"data": {
+					"ok": false,
+					"error": {
+						"code": "failed",
+						"message": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+					}
+				}
+			},
+			"problems": [
+				{
+					"field": "error.message",
+					"rule": "length",
+					"isPatch": false
+				}
+			]
+		},
+		{
+			"$comment": "A bad appId (#615): host.hello drops it with .catch, so the generated check names it, not as a patch field.",
+			"message": {
+				"v": 1,
+				"id": "msg_0417",
+				"type": "host.hello",
+				"ts": 1792310417000,
+				"data": {
+					"sdk": "1.1.0",
+					"platform": "android",
+					"capabilities": [],
+					"appId": "not an app id"
+				}
+			},
+			"problems": [
+				{ "field": "appId", "rule": "format", "isPatch": false }
+			]
+		},
+		{
+			"$comment": "Trimmed as JavaScript's trim(), which zod uses, and nothing else: it takes U+FEFF off (a name that is only a byte-order mark is empty; one around 60 letters leaves 60), and keeps U+0085 and U+001F, which Foundation's .whitespacesAndNewlines, Dart's trim() and Kotlin's trim() would take.",
+			"message": {
+				"v": 1,
+				"id": "msg_0418",
+				"type": "text",
+				"ts": 1792310418000,
+				"data": {
+					"waiterName": "\ufeff",
+					"placeholder": "\ufeffaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\ufeff",
+					"labels": { "checkout": "\u0085", "callWaiter": "\u001f" }
+				}
+			},
+			"problems": [
+				{ "field": "waiterName", "rule": "length", "isPatch": true }
+			]
+		}
+	]
+}

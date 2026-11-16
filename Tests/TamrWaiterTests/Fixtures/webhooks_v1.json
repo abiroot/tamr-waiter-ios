@@ -51,6 +51,23 @@
 					"staffCalled": false,
 					"messageCount": 0
 				}
+			},
+			{
+				"$comment": "The diner logged out of the app (identity.clear, #645).",
+				"type": "conversation.ended",
+				"timestamp": "2026-11-02T20:40:00.000Z",
+				"livemode": true,
+				"data": {
+					"conversationId": "conv_0004",
+					"appKeyId": "key_01",
+					"externalUserId": "user-88213",
+					"branch": "achrafieh",
+					"reason": "logged_out",
+					"startedAt": "2026-11-02T20:20:00.000Z",
+					"endedAt": "2026-11-02T20:40:00.000Z",
+					"staffCalled": false,
+					"messageCount": 6
+				}
 			}
 		],
 		"rejected": [
@@ -121,6 +138,35 @@
 						}
 					]
 				}
+			},
+			{
+				"$comment": "A proposed line that is a treat on the house (#455).",
+				"type": "cart.proposed",
+				"timestamp": "2026-11-02T19:20:00.000Z",
+				"livemode": true,
+				"data": {
+					"conversationId": "conv_0001",
+					"externalUserId": "user-88213",
+					"proposalId": "prop_treat_01",
+					"lines": [
+						{
+							"lineId": "line_treat_01",
+							"dishId": "dish_kafta",
+							"variantId": null,
+							"optionIds": ["opt_garlic"],
+							"externalId": "SKU-1042",
+							"variantExternalId": null,
+							"optionExternalIds": [null],
+							"quantity": 2,
+							"unitPrice": "145000",
+							"currency": "LBP",
+							"treat": {
+								"treatId": "trt_9fK2mQ7xLp4vR8sTn1Yc3Wb6",
+								"expiresAt": "2026-11-03T19:20:00.000Z"
+							}
+						}
+					]
+				}
 			}
 		],
 		"rejected": [
@@ -157,6 +203,35 @@
 							"quantity": 1,
 							"unitPrice": "145000",
 							"currency": "LBP"
+						}
+					]
+				}
+			},
+			{
+				"$comment": "A treat whose id is empty.",
+				"type": "cart.proposed",
+				"timestamp": "2026-11-02T19:20:00.000Z",
+				"livemode": true,
+				"data": {
+					"conversationId": "conv_0001",
+					"externalUserId": "user-88213",
+					"proposalId": "prop_treat_01",
+					"lines": [
+						{
+							"lineId": "line_treat_01",
+							"dishId": "dish_kafta",
+							"variantId": null,
+							"optionIds": ["opt_garlic"],
+							"externalId": "SKU-1042",
+							"variantExternalId": null,
+							"optionExternalIds": [null],
+							"quantity": 2,
+							"unitPrice": "145000",
+							"currency": "LBP",
+							"treat": {
+								"treatId": "",
+								"expiresAt": "2026-11-03T19:20:00.000Z"
+							}
 						}
 					]
 				}
@@ -527,6 +602,58 @@
 					"pickupCode": ""
 				},
 				"$comment": "An empty pickup code."
+			}
+		]
+	},
+	"orderCancelled": {
+		"valid": [
+			{
+				"type": "order.cancelled",
+				"timestamp": "2026-11-04T20:05:00.000Z",
+				"livemode": true,
+				"data": {
+					"externalUserId": "user-88213",
+					"orderId": "ord_01",
+					"status": "declined",
+					"by": "restaurant"
+				}
+			},
+			{
+				"$comment": "The diner took the round back before the team took it.",
+				"type": "order.cancelled",
+				"timestamp": "2026-11-04T20:06:00.000Z",
+				"livemode": true,
+				"data": {
+					"externalUserId": null,
+					"orderId": "ord_02",
+					"status": "cancelled",
+					"by": "diner"
+				}
+			},
+			{
+				"$comment": "A value Tamr adds later reads as unknown.",
+				"type": "order.cancelled",
+				"timestamp": "2026-11-05T04:00:00.000Z",
+				"livemode": false,
+				"data": {
+					"externalUserId": "user-1",
+					"orderId": "ord_03",
+					"status": "expired",
+					"by": "a-new-reason"
+				}
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No order id.",
+				"type": "order.cancelled",
+				"timestamp": "2026-11-04T20:05:00.000Z",
+				"livemode": true,
+				"data": {
+					"externalUserId": null,
+					"status": "declined",
+					"by": "restaurant"
+				}
 			}
 		]
 	},

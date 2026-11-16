@@ -29,7 +29,10 @@
 				"showStarters": true,
 				"showBack": true,
 				"showPoweredBy": false,
-				"hideVoice": true
+				"hideVoice": true,
+				"hideReviews": true,
+				"hideRetailSuggestions": true,
+				"hideLoyalty": true
 			}
 		},
 		{

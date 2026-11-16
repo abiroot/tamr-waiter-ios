@@ -56,9 +56,13 @@ final class Bridge {
     private let emit: (any PageMessage) -> Void
     private let debug: Bool
     private let log: (String) -> Void
+    /// The contract's check of what the app sends (#614): the controller's, shared with its own values.
+    private let check: HostCheck
     private let replyTimeout: Duration
     private let idleRelease: Duration
     private let osVersion: String?
+    /// The host app's bundle id, sent in `host.hello` (#615): the key's app-id check reads it.
+    private let appId: String?
 
     private(set) var isLoaded = false
     private(set) var isShown = false
@@ -85,7 +89,9 @@ final class Bridge {
         emit: @escaping (any PageMessage) -> Void,
         debug: Bool,
         log: @escaping (String) -> Void,
+        check: HostCheck,
         osVersion: String? = nil,
+        appId: String? = nil,
         replyTimeout: Duration = .milliseconds(TamrContract.replyTimeoutMs),
         idleRelease: Duration = .seconds(600)
     ) {
@@ -97,7 +103,9 @@ final class Bridge {
         self.emit = emit
         self.debug = debug
         self.log = log
+        self.check = check
         self.osVersion = osVersion
+        self.appId = appId
         self.replyTimeout = replyTimeout
         self.idleRelease = idleRelease
     }
@@ -188,7 +196,7 @@ final class Bridge {
 
     /// A one-off message (`chat.send`, `cart.snapshot`…): held until `ready`.
     func send(_ message: any HostMessage) {
-        guard !disposed, let raw = encode(message, id: newId()) else { return }
+        guard !disposed, check.admit(message), let raw = encode(message, id: newId()) else { return }
         if ready {
             surface.post(raw)
             return
@@ -203,7 +211,7 @@ final class Bridge {
     /// A setting the page needs after every `ready` (theme, locale…): the latest of each type is
     /// kept.
     func keep(_ message: any HostMessage) {
-        guard !disposed else { return }
+        guard !disposed, check.admit(message) else { return }
         if kept.updateValue(message, forKey: message.type) == nil {
             keptOrder.append(message.type)
         }
@@ -267,7 +275,8 @@ final class Bridge {
 
     private func sayHello() {
         let hello = HostHelloData(
-            sdk: TamrWaiterSDK.version, platform: .ios, osVersion: osVersion, capabilities: capabilities()
+            sdk: TamrWaiterSDK.version, platform: .ios, osVersion: osVersion, capabilities: capabilities(),
+            appId: appId
         )
         if let id = post(HostHelloMessage(data: hello)) {
             hellos.insert(id)
@@ -317,7 +326,7 @@ final class Bridge {
     private func onCart(_ id: String, _ type: String, _ change: CartChange) async {
         let answer: Reply
         if let handler = cart(type) {
-            answer = await within(fallback: Self.error(.failed)) { try await handler(change) }
+            answer = check.reply(await within(fallback: Self.error(.failed)) { try await handler(change) })
         } else {
             answer = Self.error(.unsupported)
         }

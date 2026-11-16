@@ -19,6 +19,7 @@ final class BridgeHarness {
     var opens = true
     var emitted: [String] = []
     var logs: [String] = []
+    var warnings: [String] = []
     var identity: TamrIdentityProvider?
     var cart: TamrCartHandler?
     private var pageIds = 0
@@ -26,7 +27,12 @@ final class BridgeHarness {
 
     static let page = URL(string: "https://tamr.link/w/cedar-house")!
 
-    init(debug: Bool = false, replyTimeout: Duration = .seconds(15), idleRelease: Duration = .seconds(600)) {
+    init(
+        debug: Bool = false,
+        replyTimeout: Duration = .seconds(15),
+        idleRelease: Duration = .seconds(600),
+        problems: @escaping (any HostMessage) -> [HostMessageProblem] = hostMessageProblems
+    ) {
         bridge = Bridge(
             surface: BridgeSurface(
                 load: { [unowned self] in loads.append($0) },
@@ -47,7 +53,9 @@ final class BridgeHarness {
             emit: { [unowned self] in emitted.append($0.type) },
             debug: debug,
             log: { [unowned self] in logs.append($0) },
+            check: HostCheck(warn: { [unowned self] in warnings.append($0) }, problems: problems),
             osVersion: "26.0",
+            appId: "com.cedarhouse.app",
             replyTimeout: replyTimeout,
             idleRelease: idleRelease
         )
@@ -119,6 +127,8 @@ final class BridgeTests: XCTestCase {
         XCTAssertEqual(hello["platform"] as? String, "ios")
         XCTAssertEqual(hello["sdk"] as? String, TamrWaiterSDK.version)
         XCTAssertEqual(hello["osVersion"] as? String, "26.0")
+        // The app's bundle id, for the key's app-id check (#615).
+        XCTAssertEqual(hello["appId"] as? String, "com.cedarhouse.app")
         XCTAssertEqual(hello["capabilities"] as? [String], ["visibility", "orders", "pay"])
     }
 
@@ -190,6 +200,24 @@ final class BridgeTests: XCTestCase {
         XCTAssertEqual(h.posted.filter { $0.type == "locale" }.map { $0.data["locale"] as? String }, ["ar"])
         h.bridge.keep(ThemeMessage(data: ThemeData(scheme: .light)))
         XCTAssertEqual(h.types.last, "theme")
+    }
+
+    /// #450: the app's goal, kept and sent again after every ready; nil replaces it.
+    func testKeepsTheAppsGoalAndSendsItAgainAfterEveryReady() {
+        let h = BridgeHarness()
+        h.bridge.keep(GoalMessage(data: GoalData(goal: Goal(mode: .cutting, kcal: 600))))
+        h.open()
+        let goals = h.posted.filter { $0.type == "goal" }
+        XCTAssertEqual(goals.count, 1)
+        let goal = goals.first?.data["goal"] as? [String: Any]
+        XCTAssertEqual(goal?["mode"] as? String, "cutting")
+        XCTAssertEqual(goal?["kcal"] as? Int, 600)
+        h.ready(unsolicited: true)
+        h.ready()
+        XCTAssertEqual(h.posted.filter { $0.type == "goal" }.count, 2)
+        h.bridge.keep(GoalMessage(data: GoalData(goal: nil)))
+        XCTAssertEqual(h.types.last, "goal")
+        XCTAssertTrue(h.posted.last?.data["goal"] is NSNull)
     }
 
     func testTakesEachMessageOnce() {
@@ -326,5 +354,197 @@ final class BridgeTests: XCTestCase {
         h.bridge.load()
         XCTAssertEqual(h.raw.count, before)
         XCTAssertEqual(h.emitted.filter { $0 == "close" }.count, 0)
+    }
+
+    // MARK: - The contract's check where the app's values enter (#614)
+
+    private let badColour = AppearanceMessage(data: Appearance(accent: .set("#12345z"), paper: .set("#FFFFFF")))
+    private let sevenStarters = StartersMessage(
+        data: StartersData(items: (0..<7).map { Starter(label: "Starter \($0)", prompt: "Tell me about \($0)") })
+    )
+
+    func testADebugBuildStopsAtTheCallOnABadColourAndOnSevenStartersNamingTheFieldNotTheValue() {
+        var stops: [String] = []
+        HostCheck.stop = { stops.append($0) }
+        defer { HostCheck.stop = { assertionFailure($0) } }
+        let h = BridgeHarness()
+        h.open()
+        h.bridge.keep(badColour)
+        h.bridge.keep(sevenStarters)
+        XCTAssertEqual(stops, [
+            "Tamr: appearance: the contract refuses accent (format)",
+            "Tamr: starters: the contract refuses items (count)",
+        ])
+        XCTAssertFalse(stops.joined().contains("#12345z"))
+    }
+
+    func testAReleaseBuildSendsAppearanceAsItIsDropsSevenStartersAndWarnsOncePerTypeAndField() {
+        HostCheck.stop = { _ in }
+        defer { HostCheck.stop = { assertionFailure($0) } }
+        let h = BridgeHarness()
+        h.open()
+        h.bridge.keep(badColour)
+        h.bridge.keep(sevenStarters)
+        let appearance = h.posted.filter { $0.type == "appearance" }
+        XCTAssertEqual(appearance.count, 1)
+        XCTAssertEqual(appearance.first?.data["accent"] as? String, "#12345z")
+        XCTAssertEqual(appearance.first?.data["paper"] as? String, "#FFFFFF")
+        XCTAssertFalse(h.types.contains("starters"))
+        let lines = [
+            "[tamr] shell: appearance: dropped accent (format)",
+            "[tamr] shell: starters: not sent: items (count)",
+        ]
+        XCTAssertEqual(h.warnings, lines)
+        // The same bad values again: sent or not as before, and no second line.
+        h.bridge.keep(badColour)
+        h.bridge.keep(sevenStarters)
+        XCTAssertEqual(h.types.filter { $0 == "appearance" }.count, 2)
+        XCTAssertEqual(h.warnings, lines)
+        XCTAssertFalse(h.warnings.joined().contains("#12345z"))
+    }
+
+    func testAGoodValueGoesThroughUntouched() {
+        var stops: [String] = []
+        HostCheck.stop = { stops.append($0) }
+        defer { HostCheck.stop = { assertionFailure($0) } }
+        let h = BridgeHarness()
+        h.open()
+        h.bridge.keep(AppearanceMessage(data: Appearance(accent: .set("#157A4B"), uiFont: .set("Noto Sans 日本"))))
+        h.bridge.keep(StartersMessage(data: StartersData(items: Array(sevenStarters.data.items.prefix(6)))))
+        h.bridge.send(ChatSendMessage(data: ChatSendData(text: "A table for two?")))
+        let appearance = h.posted.first { $0.type == "appearance" }?.data
+        XCTAssertEqual(appearance?["accent"] as? String, "#157A4B")
+        XCTAssertEqual(appearance?["uiFont"] as? String, "Noto Sans 日本")
+        XCTAssertEqual((h.posted.first { $0.type == "starters" }?.data["items"] as? [Any])?.count, 6)
+        XCTAssertTrue(h.types.contains("chat.send"))
+        XCTAssertEqual(stops, [])
+        XCTAssertEqual(h.warnings, [])
+    }
+
+    // MARK: - The contract's check of the cart handler's reply (#676)
+
+    private let change: [String: Any] = ["lines": [], "origin": "waiter", "conversationId": "c1"]
+
+    /// The page's copies of `answers`, in turn, and the warnings. A Debug build: a reply never stops.
+    private func answered(_ answers: [Reply], problems: @escaping (any HostMessage) -> [HostMessageProblem] = hostMessageProblems) async -> BridgeHarness {
+        var stops: [String] = []
+        HostCheck.stop = { stops.append($0) }
+        defer { HostCheck.stop = { assertionFailure($0) } }
+        let h = BridgeHarness(problems: problems)
+        h.open()
+        for (at, answer) in answers.enumerated() {
+            h.cart = { _ in answer }
+            h.fromPage("cart.add", change, id: "add\(at)")
+            try? await Task.sleep(for: .milliseconds(20))
+        }
+        XCTAssertEqual(stops, [])
+        return h
+    }
+
+    private func line(_ at: Int, ok: Bool = true, message: String? = nil) -> LineAnswer {
+        LineAnswer(lineId: "line_\(at)", ok: ok, message: message)
+    }
+
+    private func replies(_ h: BridgeHarness) -> [BridgeHarness.Posted] {
+        h.posted.filter { $0.type == "reply" }
+    }
+
+    func testCutsA301CodePointErrorMessageTo300AndA201CodePointLineMessageTo200WithoutSplittingAnEmoji() async {
+        let h = await answered([
+            Reply(
+                ok: false,
+                lines: [line(0, ok: false, message: String(repeating: "b", count: 201))],
+                error: ReplyError(code: .failed, message: String(repeating: "a", count: 299) + "😀😀")
+            ),
+        ])
+        let reply = replies(h).first
+        XCTAssertEqual(reply?.replyTo, "add0")
+        let message = (reply?.data["error"] as? [String: Any])?["message"] as? String
+        XCTAssertEqual(message, String(repeating: "a", count: 299) + "😀")
+        XCTAssertEqual(message?.unicodeScalars.count, 300)
+        let lines = reply?.data["lines"] as? [[String: Any]]
+        XCTAssertEqual(lines?.first?["message"] as? String, String(repeating: "b", count: 200))
+        XCTAssertEqual(h.warnings, [
+            "[tamr] shell: reply: trimmed lines.0.message (length), trimmed error.message (length)",
+        ])
+    }
+
+    func testDropsALineWithABadLineIdKeepsTheFirst50LinesAndDropsAnEmptyErrorMessage() async {
+        var lines = (0..<51).map { line($0) }
+        lines[3] = LineAnswer(lineId: "", ok: true)
+        let h = await answered([Reply(ok: false, lines: lines, error: ReplyError(code: .busy, message: ""))])
+        let data = replies(h).first?.data
+        let error = data?["error"] as? [String: Any]
+        XCTAssertEqual(error?["code"] as? String, "busy")
+        XCTAssertNil(error?["message"])
+        let ids = (data?["lines"] as? [[String: Any]])?.compactMap { $0["lineId"] as? String }
+        XCTAssertEqual(ids?.count, 49)
+        XCTAssertFalse(ids?.contains("") ?? true)
+        XCTAssertEqual(ids?.last, "line_49")
+        XCTAssertEqual(h.warnings, [
+            "[tamr] shell: reply: trimmed lines (count), dropped lines.3 (length), dropped error.message (length)",
+        ])
+    }
+
+    func testTrimsAFlaggedMessageBeforeMeasuringSpacesOnlyIsDroppedAPaddedLongOneTrimmedThenCut() async {
+        let h = await answered([
+            Reply(
+                ok: false,
+                lines: [line(0, message: "  " + String(repeating: "c", count: 250) + "  ")],
+                error: ReplyError(code: .failed, message: String(repeating: " ", count: 400))
+            ),
+        ])
+        let data = replies(h).first?.data
+        XCTAssertNil((data?["error"] as? [String: Any])?["message"])
+        let lines = data?["lines"] as? [[String: Any]]
+        XCTAssertEqual(lines?.first?["message"] as? String, String(repeating: "c", count: 200))
+        XCTAssertEqual(h.warnings, [
+            "[tamr] shell: reply: trimmed lines.0.message (length), dropped error.message (length)",
+        ])
+    }
+
+    func testDropsAnUnmappedEntryWithABadExternalId() async {
+        let h = await answered([
+            Reply(ok: true, unmapped: [UnmappedLine(externalId: String(repeating: "x", count: 201)), UnmappedLine(externalId: "sku_1")]),
+        ])
+        let unmapped = replies(h).first?.data["unmapped"] as? [[String: Any]]
+        XCTAssertEqual(unmapped?.compactMap { $0["externalId"] as? String }, ["sku_1"])
+    }
+
+    func testWritesTheWarningOnceForRepeatedBadRepliesNeverWithTheValue() async {
+        let bad = Reply(ok: false, error: ReplyError(code: .failed, message: "secret " + String(repeating: "z", count: 300)))
+        let h = await answered([bad, bad, bad])
+        XCTAssertEqual(replies(h).count, 3)
+        XCTAssertEqual(h.warnings, ["[tamr] shell: reply: trimmed error.message (length)"])
+        XCTAssertFalse(h.warnings.joined().contains("secret"))
+    }
+
+    func testPostsAGoodReplyUntouched() async throws {
+        let good = Reply(
+            ok: true,
+            lines: [line(0, message: String(repeating: "😀", count: 200))],
+            unmapped: [UnmappedLine(externalId: "sku_1")]
+        )
+        let h = await answered([good])
+        let raw = try XCTUnwrap(h.raw.last)
+        let posted = try JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any]
+        let data = try JSONSerialization.data(withJSONObject: posted?["data"] as Any)
+        XCTAssertEqual(try JSONDecoder().decode(Reply.self, from: data), good)
+        XCTAssertEqual(h.warnings, [])
+    }
+
+    func testSendsFailedUnderTheSameReplyToWhenTheRepairCannotMakeTheReplyGood() async {
+        // No reply this contract checks can stay bad after the repair: a stand-in check that refuses
+        // everything reaches the fallback.
+        let h = await answered([Reply(ok: true), Reply(ok: true)]) { _ in
+            [HostMessageProblem(field: "ok", rule: "value", isPatch: false)]
+        }
+        let posted = replies(h)
+        XCTAssertEqual(posted.map(\.replyTo), ["add0", "add1"])
+        for reply in posted {
+            XCTAssertEqual(reply.data["ok"] as? Bool, false)
+            XCTAssertEqual((reply.data["error"] as? [String: Any])?["code"] as? String, "failed")
+        }
+        XCTAssertEqual(h.warnings, ["[tamr] shell: reply: not sent: ok (value), sent failed instead"])
     }
 }

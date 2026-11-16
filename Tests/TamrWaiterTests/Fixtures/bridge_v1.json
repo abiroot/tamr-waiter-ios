@@ -72,6 +72,20 @@
 				}
 			},
 			"replyTo": "msg_9002"
+		},
+		{
+			"$comment": "A native shell naming its app (#615): the iOS bundle id or the Android package name.",
+			"v": 1,
+			"id": "hello_0615",
+			"type": "host.hello",
+			"ts": 1792310400615,
+			"data": {
+				"sdk": "1.1.0",
+				"platform": "android",
+				"osVersion": "Android 16",
+				"appId": "com.cedarhouse.app",
+				"capabilities": ["identity", "cart"]
+			}
 		}
 	],
 	"pageToHost": [

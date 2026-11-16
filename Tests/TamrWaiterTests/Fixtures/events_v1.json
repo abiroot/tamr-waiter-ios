@@ -1,6 +1,17 @@
 {
-	"$comment": "What happened, for the app's screen (docs/sdk/PLAN.md, Bridge protocol). Each comes from a server-side state change: order.placed when the diner sends the table's list (not add_to_table), payment.completed when a Tamr Pay payment is PAID (not offer_payment). No secret and nothing the diner typed: no booking manage link, name, phone or email, and never the waiter's free-text escalation reason.",
+	"$comment": "What happened, for the app's screen (docs/sdk/PLAN.md, Bridge protocol). Each comes from a server-side state change: order.placed when the diner sends the table's list (not add_to_table), payment.completed when a Tamr Pay payment is PAID (not offer_payment), review.submitted from Tamr's answer to the diner's Send on the review sheet (ids and stars, never words). No secret and nothing the diner typed: no booking manage link, name, phone or email, and never the waiter's free-text escalation reason.",
 	"pageToHost": [
+		{
+			"$comment": "An order the app heard placed was declined by the team (#743).",
+			"v": 1,
+			"id": "msg_0743",
+			"type": "order.cancelled",
+			"ts": 1792310755000,
+			"data": {
+				"orderId": "ord_0001",
+				"status": "declined"
+			}
+		},
 		{
 			"v": 1,
 			"id": "msg_0055",
@@ -182,6 +193,46 @@
 				"pickupAt": null,
 				"pickupCode": "4821"
 			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0453",
+			"type": "review.submitted",
+			"ts": 1792310453000,
+			"data": {
+				"orderId": "EXT-88",
+				"reviews": [
+					{
+						"reviewId": "rev_0001",
+						"dishId": "dish_kafta",
+						"externalId": "SKU-1042",
+						"rating": 5
+					},
+					{
+						"reviewId": "rev_0002",
+						"dishId": "dish_fattoush",
+						"externalId": null,
+						"rating": 3
+					}
+				]
+			}
+		},
+		{
+			"v": 1,
+			"id": "msg_0454",
+			"type": "review.submitted",
+			"ts": 1792310454000,
+			"data": {
+				"orderId": "EXT-89",
+				"reviews": [
+					{
+						"reviewId": "test_rev_0001",
+						"dishId": "dish_kafta",
+						"externalId": "SKU-1042",
+						"rating": 4
+					}
+				]
+			}
 		}
 	],
 	"hostToPage": [],
@@ -309,6 +360,52 @@
 			"data": {
 				"paymentId": "pay_1",
 				"url": "not a link"
+			}
+		},
+		{
+			"$comment": "A review.submitted with no reviews.",
+			"v": 1,
+			"id": "msg_0455",
+			"type": "review.submitted",
+			"ts": 1792310455000,
+			"data": {
+				"orderId": "EXT-88",
+				"reviews": []
+			}
+		},
+		{
+			"$comment": "A rating over 5.",
+			"v": 1,
+			"id": "msg_0456",
+			"type": "review.submitted",
+			"ts": 1792310456000,
+			"data": {
+				"orderId": "EXT-88",
+				"reviews": [
+					{
+						"reviewId": "rev_0001",
+						"dishId": "dish_kafta",
+						"externalId": null,
+						"rating": 6
+					}
+				]
+			}
+		},
+		{
+			"$comment": "A review with no dish.",
+			"v": 1,
+			"id": "msg_0457",
+			"type": "review.submitted",
+			"ts": 1792310457000,
+			"data": {
+				"orderId": "EXT-88",
+				"reviews": [
+					{
+						"reviewId": "rev_0001",
+						"externalId": "SKU-1042",
+						"rating": 4
+					}
+				]
 			}
 		}
 	],

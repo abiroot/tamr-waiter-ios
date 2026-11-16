@@ -101,6 +101,12 @@ final class ControllerTests: XCTestCase {
         try ready(controller)
         XCTAssertEqual(controller.pageState, .loaded)
         XCTAssertEqual(engines[0].types.first, "host.hello")
+        // The app names itself with its bundle id (#615).
+        let hello = try XCTUnwrap(engines[0].delivered.first.flatMap {
+            try? JSONSerialization.jsonObject(with: Data($0.utf8)) as? [String: Any]
+        })
+        let data = try XCTUnwrap(hello["data"] as? [String: Any])
+        XCTAssertEqual(data["appId"] as? String, Bundle.main.bundleIdentifier)
     }
 
     func testTakesMessagesOnlyFromTheMainFrameOnTamrsOriginAndDeliversOnlyThere() throws {
@@ -138,6 +144,47 @@ final class ControllerTests: XCTestCase {
         remove()
         controller.pageMessage(message("close"), isMainFrame: true, origin: tamr)
         XCTAssertEqual(heard.sorted(), ["first", "second", "second"])
+    }
+
+    func testHoldsRequestReviewUntilReadyAndSendsItOnce() throws {
+        let controller = try waiter()
+        controller.requestReview(orderId: "EXT-88", dishes: [
+            ReviewDish(externalId: "SKU-1042", title: "Kafta plate"),
+            ReviewDish(dishId: "dish_fattoush", title: "Fattoush"),
+        ])
+        controller.preload()
+        XCTAssertFalse(engines[0].types.contains("review.request"))
+        try ready(controller)
+        let sent = engines[0].delivered.compactMap { text -> [String: Any]? in
+            guard let object = try? JSONSerialization.jsonObject(with: Data(text.utf8)) as? [String: Any],
+                  object["type"] as? String == "review.request" else { return nil }
+            return object["data"] as? [String: Any]
+        }
+        XCTAssertEqual(sent.count, 1)
+        XCTAssertEqual(sent.first?["orderId"] as? String, "EXT-88")
+        let dishes = try XCTUnwrap(sent.first?["dishes"] as? [[String: Any]])
+        XCTAssertEqual(dishes.first?["externalId"] as? String, "SKU-1042")
+        XCTAssertEqual(dishes.last?["dishId"] as? String, "dish_fattoush")
+    }
+
+    func testPassesReviewSubmittedFromTheFixtureToTheListener() throws {
+        let controller = try waiter()
+        var heard: [ReviewSubmittedData] = []
+        controller.on("review.submitted") { message in
+            if let submitted = message as? ReviewSubmittedMessage { heard.append(submitted.data) }
+        }
+        controller.preload()
+        try ready(controller)
+        let events = try fixture("events_v1")
+        let reviews = (events["pageToHost"] as? [[String: Any]] ?? []).filter { $0["type"] as? String == "review.submitted" }
+        XCTAssertFalse(reviews.isEmpty)
+        for review in reviews {
+            controller.pageMessage(message("review.submitted", review["data"] as? [String: Any] ?? [:]), isMainFrame: true, origin: tamr)
+        }
+        XCTAssertEqual(heard.count, reviews.count)
+        XCTAssertEqual(heard.first?.orderId, "EXT-88")
+        XCTAssertEqual(heard.first?.reviews.first?.rating, 5)
+        XCTAssertNil(heard.first?.reviews.last?.externalId)
     }
 
     func testClosesTheViewShowingItOnThePagesClose() throws {
@@ -277,6 +324,24 @@ final class ControllerTests: XCTestCase {
         XCTAssertEqual(controller.pageState, .loading)
     }
 
+    func testEveryLoadOfThePageSkipsTheCache() throws {
+        let controller = try waiter()
+        controller.viewShown(by: UIViewController()) {}
+        let page = URL(string: "\(tamr)/w/cedar-house")!
+        controller.pageFailed(NSError(domain: NSURLErrorDomain, code: NSURLErrorNotConnectedToInternet, userInfo: [NSURLErrorFailingURLErrorKey: page]))
+        controller.reload()
+        try ready(controller)
+        controller.processEnded()
+        // The first load, Try again and the load after the web process ended: each a new web view's load.
+        XCTAssertEqual(engines.map(\.loads.count), [1, 1, 1])
+        for url in engines.flatMap(\.loads) {
+            let request = WebKitHost.pageRequest(url)
+            XCTAssertEqual(request.url, url)
+            XCTAssertEqual(request.cachePolicy, .reloadIgnoringLocalCacheData)
+        }
+        controller.dispose()
+    }
+
     func testKeepsTheWebViewOnTheWaiterPage() throws {
         let controller = try waiter()
         XCTAssertTrue(controller.navigate(to: URL(string: "\(tamr)/w/cedar-house?key=x")!, isMainFrame: true))
@@ -318,5 +383,38 @@ final class ControllerTests: XCTestCase {
         controller.onCartUpdate { _ in Reply(ok: true) }
         XCTAssertEqual(hellos(), before + 2)
         XCTAssertTrue(engines[0].delivered.last?.contains("\"cart\"") ?? false)
+    }
+
+    // MARK: - The contract's check of the controller's values (#614)
+
+    func testTheInitsValuesGoThroughTheContractsCheck() throws {
+        var stops: [String] = []
+        HostCheck.stop = { stops.append($0) }
+        defer { HostCheck.stop = { assertionFailure($0) } }
+        var lines: [String] = []
+        let controller = try TamrWaiterController(
+            appKey: "tamr_pk_test_abababababababab", restaurant: "cedar-house", branch: "achrafieh",
+            locale: "english", appearance: Appearance(accent: .set("teal-ish")), table: String(repeating: "x", count: 41),
+            onLog: { lines.append($0) }
+        )
+        defer { controller.dispose() }
+        // A Debug build stops at the init, for each refused value.
+        XCTAssertEqual(stops, [
+            "Tamr: locale: the contract refuses locale (format)",
+            "Tamr: appearance: the contract refuses accent (format)",
+            "Tamr: context: the contract refuses table (length)",
+        ])
+        // A Release build keeps the bad appearance for the page, leaves the refused locale and place out of
+        // the address, and warns even without debug.
+        let url = controller.url.absoluteString
+        XCTAssertFalse(url.contains("lang="))
+        XCTAssertFalse(url.contains("branch="))
+        XCTAssertFalse(url.contains("table="))
+        XCTAssertTrue(url.contains("appearance="))
+        XCTAssertEqual(lines, [
+            "[tamr] shell: locale: not sent: locale (format)",
+            "[tamr] shell: appearance: dropped accent (format)",
+            "[tamr] shell: context: not sent: table (length)",
+        ])
     }
 }

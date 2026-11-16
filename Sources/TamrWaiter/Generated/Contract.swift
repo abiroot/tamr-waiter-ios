@@ -18,7 +18,7 @@ public enum TamrContract {
     /// What a shell may announce in host.hello.
     public static let hostCapabilities: [String] = ["identity", "cart", "visibility", "microphone", "log", "orders", "pay"]
     /// What the page may announce in ready.
-    public static let pageCapabilities: [String] = ["identity", "cart", "visibility", "context", "appearance", "text", "starters", "locale", "restrictions", "chat.send", "chat.new", "review", "state", "orders", "pay"]
+    public static let pageCapabilities: [String] = ["identity", "cart", "visibility", "context", "appearance", "text", "starters", "locale", "restrictions", "goal", "chat.send", "chat.new", "review", "state", "orders", "pay"]
     /// The waiter page's query params: each value is its own cached document.
     public static let queryKeys: [String] = ["key", "branch", "lang", "appearance"]
     /// The waiter page's fragment params: read in the browser, never sent to a server.
@@ -415,6 +415,34 @@ public struct LogLevel: RawRepresentable, Hashable, Sendable, Codable, CustomStr
     }
 }
 
+/// NutritionMode. New values may be added: keep a default branch.
+public struct NutritionMode: RawRepresentable, Hashable, Sendable, Codable, CustomStringConvertible {
+    public let rawValue: String
+    public init(rawValue: String) { self.rawValue = rawValue }
+    public var description: String { rawValue }
+
+    public static let cutting = NutritionMode(rawValue: "cutting")
+    public static let maintain = NutritionMode(rawValue: "maintain")
+    public static let bulking = NutritionMode(rawValue: "bulking")
+
+    /// Every value this version knows.
+    public static let allKnown: [NutritionMode] = [.cutting, .maintain, .bulking]
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let raw = try container.decode(String.self)
+        guard Self.allKnown.contains(Self(rawValue: raw)) else {
+                    throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unknown NutritionMode \(raw)")
+                }
+                self = Self(rawValue: raw)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
+}
+
 /// OrderStatus. A value this version does not know reads as `unknown`. New values may be
 /// added: keep a default branch.
 public struct OrderStatus: RawRepresentable, Hashable, Sendable, Codable, CustomStringConvertible {
@@ -685,8 +713,11 @@ public struct Appearance: Codable, Sendable, Equatable {
     public var showBack: Patch<Bool>?
     public var showPoweredBy: Patch<Bool>?
     public var hideVoice: Patch<Bool>?
+    public var hideReviews: Patch<Bool>?
+    public var hideRetailSuggestions: Patch<Bool>?
+    public var hideLoyalty: Patch<Bool>?
 
-    public init(scheme: Patch<Scheme>? = nil, accent: Patch<String>? = nil, accentSecondary: Patch<String>? = nil, paper: Patch<String>? = nil, text: Patch<String>? = nil, displayFont: Patch<String>? = nil, uiFont: Patch<String>? = nil, corners: Patch<Corners>? = nil, showHeader: Patch<Bool>? = nil, showLogo: Patch<Bool>? = nil, showStarters: Patch<Bool>? = nil, showBack: Patch<Bool>? = nil, showPoweredBy: Patch<Bool>? = nil, hideVoice: Patch<Bool>? = nil) {
+    public init(scheme: Patch<Scheme>? = nil, accent: Patch<String>? = nil, accentSecondary: Patch<String>? = nil, paper: Patch<String>? = nil, text: Patch<String>? = nil, displayFont: Patch<String>? = nil, uiFont: Patch<String>? = nil, corners: Patch<Corners>? = nil, showHeader: Patch<Bool>? = nil, showLogo: Patch<Bool>? = nil, showStarters: Patch<Bool>? = nil, showBack: Patch<Bool>? = nil, showPoweredBy: Patch<Bool>? = nil, hideVoice: Patch<Bool>? = nil, hideReviews: Patch<Bool>? = nil, hideRetailSuggestions: Patch<Bool>? = nil, hideLoyalty: Patch<Bool>? = nil) {
         self.scheme = scheme
         self.accent = accent
         self.accentSecondary = accentSecondary
@@ -701,10 +732,13 @@ public struct Appearance: Codable, Sendable, Equatable {
         self.showBack = showBack
         self.showPoweredBy = showPoweredBy
         self.hideVoice = hideVoice
+        self.hideReviews = hideReviews
+        self.hideRetailSuggestions = hideRetailSuggestions
+        self.hideLoyalty = hideLoyalty
     }
 
     private enum CodingKeys: String, CodingKey {
-        case scheme, accent, accentSecondary, paper, text, displayFont, uiFont, corners, showHeader, showLogo, showStarters, showBack, showPoweredBy, hideVoice
+        case scheme, accent, accentSecondary, paper, text, displayFont, uiFont, corners, showHeader, showLogo, showStarters, showBack, showPoweredBy, hideVoice, hideReviews, hideRetailSuggestions, hideLoyalty
     }
 
     public init(from decoder: Decoder) throws {
@@ -723,6 +757,9 @@ public struct Appearance: Codable, Sendable, Equatable {
         showBack = try c.decodePatch(Bool.self, forKey: .showBack)
         showPoweredBy = try c.decodePatch(Bool.self, forKey: .showPoweredBy)
         hideVoice = try c.decodePatch(Bool.self, forKey: .hideVoice)
+        hideReviews = try c.decodePatch(Bool.self, forKey: .hideReviews)
+        hideRetailSuggestions = try c.decodePatch(Bool.self, forKey: .hideRetailSuggestions)
+        hideLoyalty = try c.decodePatch(Bool.self, forKey: .hideLoyalty)
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -741,6 +778,9 @@ public struct Appearance: Codable, Sendable, Equatable {
         try c.encodePatch(showBack, forKey: .showBack)
         try c.encodePatch(showPoweredBy, forKey: .showPoweredBy)
         try c.encodePatch(hideVoice, forKey: .hideVoice)
+        try c.encodePatch(hideReviews, forKey: .hideReviews)
+        try c.encodePatch(hideRetailSuggestions, forKey: .hideRetailSuggestions)
+        try c.encodePatch(hideLoyalty, forKey: .hideLoyalty)
     }
 }
 
@@ -851,8 +891,11 @@ public struct CartLine: Codable, Sendable, Equatable {
     /// A set's picks, in the order of its choices (#560). Absent on any other line. Each pick's
     /// count is per one set; quantity multiplies the whole set.
     public var picks: [CartPick]?
+    /// A treat on the house (#455): price this line at zero, then redeem the id once the order is
+    /// placed. Absent on any other line.
+    public var treat: CartTreat?
 
-    public init(lineId: String, dishId: String, variantId: String?, optionIds: [String], externalId: String?, variantExternalId: String?, optionExternalIds: [String?], title: String, variantLabel: String?, choices: [String], unitPrice: String, currency: String, imageUrl: String?, quantity: Int, note: String?, picks: [CartPick]? = nil) {
+    public init(lineId: String, dishId: String, variantId: String?, optionIds: [String], externalId: String?, variantExternalId: String?, optionExternalIds: [String?], title: String, variantLabel: String?, choices: [String], unitPrice: String, currency: String, imageUrl: String?, quantity: Int, note: String?, picks: [CartPick]? = nil, treat: CartTreat? = nil) {
         self.lineId = lineId
         self.dishId = dishId
         self.variantId = variantId
@@ -869,10 +912,11 @@ public struct CartLine: Codable, Sendable, Equatable {
         self.quantity = quantity
         self.note = note
         self.picks = picks
+        self.treat = treat
     }
 
     private enum CodingKeys: String, CodingKey {
-        case lineId, dishId, variantId, optionIds, externalId, variantExternalId, optionExternalIds, title, variantLabel, choices, unitPrice, currency, imageUrl, quantity, note, picks
+        case lineId, dishId, variantId, optionIds, externalId, variantExternalId, optionExternalIds, title, variantLabel, choices, unitPrice, currency, imageUrl, quantity, note, picks, treat
     }
 
     public init(from decoder: Decoder) throws {
@@ -893,6 +937,7 @@ public struct CartLine: Codable, Sendable, Equatable {
         quantity = try c.decode(Int.self, forKey: .quantity)
         note = try c.decode(String?.self, forKey: .note)
         picks = try c.decodeIfPresent([CartPick].self, forKey: .picks)
+        treat = try c.decodeIfPresent(CartTreat.self, forKey: .treat)
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -913,6 +958,7 @@ public struct CartLine: Codable, Sendable, Equatable {
         try c.encode(quantity, forKey: .quantity)
         try c.encode(note, forKey: .note)
         try c.encodeIfPresent(picks, forKey: .picks)
+        try c.encodeIfPresent(treat, forKey: .treat)
     }
 }
 
@@ -1003,6 +1049,34 @@ public struct CartSnapshotData: Codable, Sendable, Equatable {
     }
 }
 
+public struct CartTreat: Codable, Sendable, Equatable {
+    /// The treat's single-use id.
+    public var treatId: String
+    /// After this the treat can't be redeemed.
+    public var expiresAt: String
+
+    public init(treatId: String, expiresAt: String) {
+        self.treatId = treatId
+        self.expiresAt = expiresAt
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case treatId, expiresAt
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        treatId = try c.decode(String.self, forKey: .treatId)
+        expiresAt = try c.decode(String.self, forKey: .expiresAt)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(treatId, forKey: .treatId)
+        try c.encode(expiresAt, forKey: .expiresAt)
+    }
+}
+
 public struct ChatSendData: Codable, Sendable, Equatable {
     public var text: String
 
@@ -1085,21 +1159,77 @@ public struct ContextData: Codable, Sendable, Equatable {
     }
 }
 
+public struct Goal: Codable, Sendable, Equatable {
+    public var mode: NutritionMode
+    /// Calories for one meal: a ceiling when cutting or maintaining, a floor when bulking.
+    public var kcal: Int?
+    /// Grams of protein for one meal, always a floor.
+    public var proteinGrams: Int?
+
+    public init(mode: NutritionMode, kcal: Int? = nil, proteinGrams: Int? = nil) {
+        self.mode = mode
+        self.kcal = kcal
+        self.proteinGrams = proteinGrams
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case mode, kcal, proteinGrams
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        mode = try c.decode(NutritionMode.self, forKey: .mode)
+        kcal = try c.decodeIfPresent(Int.self, forKey: .kcal)
+        proteinGrams = try c.decodeIfPresent(Int.self, forKey: .proteinGrams)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(mode, forKey: .mode)
+        try c.encodeIfPresent(kcal, forKey: .kcal)
+        try c.encodeIfPresent(proteinGrams, forKey: .proteinGrams)
+    }
+}
+
+public struct GoalData: Codable, Sendable, Equatable {
+    public var goal: Goal?
+
+    public init(goal: Goal?) {
+        self.goal = goal
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case goal
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        goal = try c.decode(Goal?.self, forKey: .goal)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(goal, forKey: .goal)
+    }
+}
+
 public struct HostHelloData: Codable, Sendable, Equatable {
     public var sdk: String
     public var platform: Platform
     public var osVersion: String?
     public var capabilities: [String]
+    public var appId: String?
 
-    public init(sdk: String, platform: Platform, osVersion: String? = nil, capabilities: [String]) {
+    public init(sdk: String, platform: Platform, osVersion: String? = nil, capabilities: [String], appId: String? = nil) {
         self.sdk = sdk
         self.platform = platform
         self.osVersion = osVersion
         self.capabilities = capabilities
+        self.appId = appId
     }
 
     private enum CodingKeys: String, CodingKey {
-        case sdk, platform, osVersion, capabilities
+        case sdk, platform, osVersion, capabilities, appId
     }
 
     public init(from decoder: Decoder) throws {
@@ -1108,6 +1238,7 @@ public struct HostHelloData: Codable, Sendable, Equatable {
         platform = try c.decode(Platform.self, forKey: .platform)
         osVersion = try c.decodeIfPresent(String.self, forKey: .osVersion)
         capabilities = try c.decode([String].self, forKey: .capabilities)
+        appId = try c.decodeIfPresent(String.self, forKey: .appId)
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -1116,6 +1247,7 @@ public struct HostHelloData: Codable, Sendable, Equatable {
         try c.encode(platform, forKey: .platform)
         try c.encodeIfPresent(osVersion, forKey: .osVersion)
         try c.encode(capabilities, forKey: .capabilities)
+        try c.encodeIfPresent(appId, forKey: .appId)
     }
 }
 
@@ -1323,6 +1455,32 @@ public struct OpenTiming: Codable, Sendable, Equatable {
     }
 }
 
+public struct OrderCancelled: Codable, Sendable, Equatable {
+    public var orderId: String
+    public var status: OrderStatus
+
+    public init(orderId: String, status: OrderStatus) {
+        self.orderId = orderId
+        self.status = status
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case orderId, status
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        orderId = try c.decode(String.self, forKey: .orderId)
+        status = try c.decode(OrderStatus.self, forKey: .status)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(orderId, forKey: .orderId)
+        try c.encode(status, forKey: .status)
+    }
+}
+
 public struct OrderLine: Codable, Sendable, Equatable {
     public var dishId: String?
     public var externalId: String?
@@ -1378,8 +1536,9 @@ public struct OrderPlaced: Codable, Sendable, Equatable {
     public var fulfilment: Fulfilment?
     public var pickupAt: Patch<String>?
     public var pickupCode: Patch<String>?
+    public var test: Bool?
 
-    public init(orderId: String, number: Int, status: OrderStatus, branch: String, table: String?, currency: String, subtotal: String, lines: [OrderLine], fulfilment: Fulfilment? = nil, pickupAt: Patch<String>? = nil, pickupCode: Patch<String>? = nil) {
+    public init(orderId: String, number: Int, status: OrderStatus, branch: String, table: String?, currency: String, subtotal: String, lines: [OrderLine], fulfilment: Fulfilment? = nil, pickupAt: Patch<String>? = nil, pickupCode: Patch<String>? = nil, test: Bool? = nil) {
         self.orderId = orderId
         self.number = number
         self.status = status
@@ -1391,10 +1550,11 @@ public struct OrderPlaced: Codable, Sendable, Equatable {
         self.fulfilment = fulfilment
         self.pickupAt = pickupAt
         self.pickupCode = pickupCode
+        self.test = test
     }
 
     private enum CodingKeys: String, CodingKey {
-        case orderId, number, status, branch, table, currency, subtotal, lines, fulfilment, pickupAt, pickupCode
+        case orderId, number, status, branch, table, currency, subtotal, lines, fulfilment, pickupAt, pickupCode, test
     }
 
     public init(from decoder: Decoder) throws {
@@ -1410,6 +1570,7 @@ public struct OrderPlaced: Codable, Sendable, Equatable {
         fulfilment = try c.decodeIfPresent(Fulfilment.self, forKey: .fulfilment)
         pickupAt = try c.decodePatch(String.self, forKey: .pickupAt)
         pickupCode = try c.decodePatch(String.self, forKey: .pickupCode)
+        test = try c.decodeIfPresent(Bool.self, forKey: .test)
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -1425,6 +1586,7 @@ public struct OrderPlaced: Codable, Sendable, Equatable {
         try c.encodeIfPresent(fulfilment, forKey: .fulfilment)
         try c.encodePatch(pickupAt, forKey: .pickupAt)
         try c.encodePatch(pickupCode, forKey: .pickupCode)
+        try c.encodeIfPresent(test, forKey: .test)
     }
 }
 
@@ -1666,6 +1828,32 @@ public struct ReviewRequestData: Codable, Sendable, Equatable {
     }
 }
 
+public struct ReviewSubmittedData: Codable, Sendable, Equatable {
+    public var orderId: String
+    public var reviews: [SubmittedReview]
+
+    public init(orderId: String, reviews: [SubmittedReview]) {
+        self.orderId = orderId
+        self.reviews = reviews
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case orderId, reviews
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        orderId = try c.decode(String.self, forKey: .orderId)
+        reviews = try c.decode([SubmittedReview].self, forKey: .reviews)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(orderId, forKey: .orderId)
+        try c.encode(reviews, forKey: .reviews)
+    }
+}
+
 /// A line of the host's own cart, named by exactly one id: dishId or externalId.
 public struct SnapshotLine: Codable, Sendable, Equatable {
     public var dishId: String?
@@ -1833,6 +2021,40 @@ public struct StateData: Codable, Sendable, Equatable {
         try c.encode(busy, forKey: .busy)
         try c.encode(itemCount, forKey: .itemCount)
         try c.encode(conversationId, forKey: .conversationId)
+    }
+}
+
+public struct SubmittedReview: Codable, Sendable, Equatable {
+    public var reviewId: String
+    public var dishId: String
+    public var externalId: String?
+    public var rating: Int
+
+    public init(reviewId: String, dishId: String, externalId: String?, rating: Int) {
+        self.reviewId = reviewId
+        self.dishId = dishId
+        self.externalId = externalId
+        self.rating = rating
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case reviewId, dishId, externalId, rating
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        reviewId = try c.decode(String.self, forKey: .reviewId)
+        dishId = try c.decode(String.self, forKey: .dishId)
+        externalId = try c.decode(String?.self, forKey: .externalId)
+        rating = try c.decode(Int.self, forKey: .rating)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(reviewId, forKey: .reviewId)
+        try c.encode(dishId, forKey: .dishId)
+        try c.encode(externalId, forKey: .externalId)
+        try c.encode(rating, forKey: .rating)
     }
 }
 
@@ -2217,6 +2439,13 @@ public struct RestrictionsMessage: HostMessage, Equatable {
     public var type: String { "restrictions" }
 }
 
+public struct GoalMessage: HostMessage, Equatable {
+    public let data: GoalData
+    public init(data: GoalData) { self.data = data }
+    public var payload: (any Encodable & Sendable)? { data }
+    public var type: String { "goal" }
+}
+
 public struct ReviewRequestMessage: HostMessage, Equatable {
     public let data: ReviewRequestData
     public init(data: ReviewRequestData) { self.data = data }
@@ -2275,6 +2504,8 @@ public func parseHostMessage(_ raw: String) -> Envelope<any HostMessage>? {
             message = StartersMessage(data: try decoder.decode(Box<StartersData>.self, from: json).data)
         case "restrictions":
             message = RestrictionsMessage(data: try decoder.decode(Box<RestrictionsData>.self, from: json).data)
+        case "goal":
+            message = GoalMessage(data: try decoder.decode(Box<GoalData>.self, from: json).data)
         case "review.request":
             message = ReviewRequestMessage(data: try decoder.decode(Box<ReviewRequestData>.self, from: json).data)
         case "reply":
@@ -2393,6 +2624,13 @@ public struct OrderPlacedMessage: PageMessage, Equatable {
     public var type: String { "order.placed" }
 }
 
+public struct OrderCancelledMessage: PageMessage, Equatable {
+    public let data: OrderCancelled
+    public init(data: OrderCancelled) { self.data = data }
+    public var payload: (any Encodable & Sendable)? { data }
+    public var type: String { "order.cancelled" }
+}
+
 public struct PaymentOpenMessage: PageMessage, Equatable {
     public let data: PaymentOpen
     public init(data: PaymentOpen) { self.data = data }
@@ -2426,6 +2664,13 @@ public struct WaiterCalledMessage: PageMessage, Equatable {
     public init(data: WaiterCalled) { self.data = data }
     public var payload: (any Encodable & Sendable)? { data }
     public var type: String { "waiter.called" }
+}
+
+public struct ReviewSubmittedMessage: PageMessage, Equatable {
+    public let data: ReviewSubmittedData
+    public init(data: ReviewSubmittedData) { self.data = data }
+    public var payload: (any Encodable & Sendable)? { data }
+    public var type: String { "review.submitted" }
 }
 
 public struct PageReplyMessage: PageMessage, Equatable {
@@ -2477,6 +2722,8 @@ public func parsePageMessage(_ raw: String) -> Envelope<any PageMessage>? {
             message = LogMessage(data: try decoder.decode(Box<LogData>.self, from: json).data)
         case "order.placed":
             message = OrderPlacedMessage(data: try decoder.decode(Box<OrderPlaced>.self, from: json).data)
+        case "order.cancelled":
+            message = OrderCancelledMessage(data: try decoder.decode(Box<OrderCancelled>.self, from: json).data)
         case "payment.open":
             message = PaymentOpenMessage(data: try decoder.decode(Box<PaymentOpen>.self, from: json).data)
         case "payment.completed":
@@ -2487,6 +2734,8 @@ public func parsePageMessage(_ raw: String) -> Envelope<any PageMessage>? {
             message = BookingChangedMessage(data: try decoder.decode(Box<Booking>.self, from: json).data)
         case "waiter.called":
             message = WaiterCalledMessage(data: try decoder.decode(Box<WaiterCalled>.self, from: json).data)
+        case "review.submitted":
+            message = ReviewSubmittedMessage(data: try decoder.decode(Box<ReviewSubmittedData>.self, from: json).data)
         case "reply":
             message = PageReplyMessage(data: try decoder.decode(Box<Reply>.self, from: json).data)
         default:
@@ -2504,4 +2753,385 @@ public func encodePageMessage(_ message: any PageMessage, id: String, ts: Int, r
     let data = try JSONEncoder().encode(out)
     guard let text = String(data: data, encoding: .utf8) else { throw ContractError(description: "Not UTF-8") }
     return text
+}
+
+/// A value in a message from the app that the contract refuses (#614): the field, dotted
+/// (`labels.checkout`, `items.2.label`), and the rule it breaks: `format`, `length` (Unicode
+/// code points, as zod counts, after trimming where the contract trims), `count`, `range` or
+/// `value`. The page drops a patch field (`isPatch`) alone and refuses any other message
+/// whole. Internal to the SDK.
+struct HostMessageProblem: Equatable, Sendable {
+    /// The field, dotted: `labels.checkout`, `items.2.label`.
+    let field: String
+    /// `format`, `length`, `count`, `range` or `value`.
+    let rule: String
+    /// A patch field: the page drops it alone and applies the rest.
+    let isPatch: Bool
+}
+
+/// The contract's patterns, compiled once. NSRegularExpression is immutable and thread-safe.
+private final class HostFormats: @unchecked Sendable {
+    let f0 = try! NSRegularExpression(pattern: #"^#[0-9a-fA-F]{6}$"#)
+    let f1 = try! NSRegularExpression(pattern: #"^[\p{L}\p{N} ._-]+$"#)
+    let f2 = try! NSRegularExpression(pattern: #"^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$"#)
+    let f3 = try! NSRegularExpression(pattern: #"^[A-Z]{3}$"#)
+    let f4 = try! NSRegularExpression(pattern: #"^[0-9]{1,4}\.[0-9]{1,4}\.[0-9]{1,4}$"#)
+    let f5 = try! NSRegularExpression(pattern: #"^[a-z][a-z_.]{0,47}$"#)
+    let f6 = try! NSRegularExpression(pattern: #"^[A-Za-z][A-Za-z0-9_-]*(\.[A-Za-z0-9_-]+)+$"#)
+    let f7 = try! NSRegularExpression(pattern: #"^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$"#)
+}
+
+private let hostFormats = HostFormats()
+
+private func note(_ out: inout [HostMessageProblem], _ field: String, _ rule: String?, isPatch: Bool) {
+    if let rule {
+        out.append(HostMessageProblem(field: field, rule: rule, isPatch: isPatch))
+    }
+}
+
+/// What JavaScript's `trim()` takes off, as zod trims: its white space and line terminators, no more.
+/// Foundation's `.whitespacesAndNewlines` also takes U+0085 and keeps U+FEFF.
+private let jsSpace = CharacterSet(
+    charactersIn: "\t\n\u{0B}\u{0C}\r \u{A0}\u{1680}\u{2000}\u{2001}\u{2002}\u{2003}\u{2004}\u{2005}\u{2006}\u{2007}\u{2008}\u{2009}\u{200A}\u{2028}\u{2029}\u{202F}\u{205F}\u{3000}\u{FEFF}"
+)
+
+private func textRule(_ value: String, trim: Bool = false, min: Int? = nil, max: Int? = nil, format: NSRegularExpression? = nil) -> String? {
+    let text = trim ? value.trimmingCharacters(in: jsSpace) : value
+    let length = text.unicodeScalars.count
+    if let min, length < min { return "length" }
+    if let max, length > max { return "length" }
+    if let format {
+        let whole = NSRange(location: 0, length: text.utf16.count)
+        guard let match = format.firstMatch(in: text, options: [], range: whole), match.range == whole else {
+            return "format"
+        }
+    }
+    return nil
+}
+
+private func integerRule(_ value: Int, min: Int? = nil, max: Int? = nil) -> String? {
+    if let min, value < min { return "range" }
+    if let max, value > max { return "range" }
+    return nil
+}
+
+private func countRule<T>(_ value: [T], min: Int? = nil, max: Int? = nil) -> String? {
+    if let min, value.count < min { return "count" }
+    if let max, value.count > max { return "count" }
+    return nil
+}
+
+private func checkAppearance(_ value: Appearance, _ path: String, _ out: inout [HostMessageProblem]) {
+    if case let .set(x0)? = value.scheme {
+        note(&out, "\(path)scheme", Scheme.allKnown.contains(x0) ? nil : "value", isPatch: true)
+    }
+    if case let .set(x1)? = value.accent {
+        note(&out, "\(path)accent", textRule(x1, format: hostFormats.f0), isPatch: true)
+    }
+    if case let .set(x2)? = value.accentSecondary {
+        note(&out, "\(path)accentSecondary", textRule(x2, format: hostFormats.f0), isPatch: true)
+    }
+    if case let .set(x3)? = value.paper {
+        note(&out, "\(path)paper", textRule(x3, format: hostFormats.f0), isPatch: true)
+    }
+    if case let .set(x4)? = value.text {
+        note(&out, "\(path)text", textRule(x4, format: hostFormats.f0), isPatch: true)
+    }
+    if case let .set(x5)? = value.displayFont {
+        note(&out, "\(path)displayFont", textRule(x5, trim: true, min: 1, max: 40, format: hostFormats.f1), isPatch: true)
+    }
+    if case let .set(x6)? = value.uiFont {
+        note(&out, "\(path)uiFont", textRule(x6, trim: true, min: 1, max: 40, format: hostFormats.f1), isPatch: true)
+    }
+    if case let .set(x7)? = value.corners {
+        note(&out, "\(path)corners", Corners.allKnown.contains(x7) ? nil : "value", isPatch: true)
+    }
+}
+
+private func checkCartSnapshotData(_ value: CartSnapshotData, _ path: String, _ out: inout [HostMessageProblem]) {
+    note(&out, "\(path)lines", countRule(value.lines, max: 50), isPatch: false)
+    for (i1, x0) in value.lines.enumerated() {
+        checkSnapshotLine(x0, "\(path)lines.\(i1).", &out)
+    }
+}
+
+private func checkChatSendData(_ value: ChatSendData, _ path: String, _ out: inout [HostMessageProblem]) {
+    note(&out, "\(path)text", textRule(value.text, trim: true, min: 1, max: 2000), isPatch: false)
+}
+
+private func checkContextData(_ value: ContextData, _ path: String, _ out: inout [HostMessageProblem]) {
+    if let x0 = value.branch {
+        note(&out, "\(path)branch", textRule(x0, format: hostFormats.f2), isPatch: false)
+    }
+    if let x1 = value.mode {
+        note(&out, "\(path)mode", ServiceMode.allKnown.contains(x1) ? nil : "value", isPatch: false)
+    }
+    if let x2 = value.table {
+        note(&out, "\(path)table", textRule(x2, min: 1, max: 40), isPatch: false)
+    }
+    if let x3 = value.currency {
+        note(&out, "\(path)currency", textRule(x3, format: hostFormats.f3), isPatch: false)
+    }
+    if let x4 = value.tableScan {
+        note(&out, "\(path)tableScan", textRule(x4, trim: true, min: 1, max: 500), isPatch: false)
+    }
+}
+
+private func checkGoal(_ value: Goal, _ path: String, _ out: inout [HostMessageProblem]) {
+    note(&out, "\(path)mode", NutritionMode.allKnown.contains(value.mode) ? nil : "value", isPatch: false)
+    if let x0 = value.kcal {
+        note(&out, "\(path)kcal", integerRule(x0, min: 100, max: 3000), isPatch: false)
+    }
+    if let x1 = value.proteinGrams {
+        note(&out, "\(path)proteinGrams", integerRule(x1, min: 5, max: 300), isPatch: false)
+    }
+}
+
+private func checkGoalData(_ value: GoalData, _ path: String, _ out: inout [HostMessageProblem]) {
+    if let x0 = value.goal {
+        checkGoal(x0, "\(path)goal.", &out)
+    }
+}
+
+private func checkHostHelloData(_ value: HostHelloData, _ path: String, _ out: inout [HostMessageProblem]) {
+    note(&out, "\(path)sdk", textRule(value.sdk, format: hostFormats.f4), isPatch: false)
+    note(&out, "\(path)platform", Platform.allKnown.contains(value.platform) ? nil : "value", isPatch: false)
+    if let x0 = value.osVersion {
+        note(&out, "\(path)osVersion", textRule(x0, min: 1, max: 40), isPatch: false)
+    }
+    note(&out, "\(path)capabilities", countRule(value.capabilities, max: 64), isPatch: false)
+    for (i2, x1) in value.capabilities.enumerated() {
+        note(&out, "\(path)capabilities.\(i2)", textRule(x1, format: hostFormats.f5), isPatch: false)
+    }
+    if let x3 = value.appId {
+        note(&out, "\(path)appId", textRule(x3, max: 155, format: hostFormats.f6), isPatch: false)
+    }
+}
+
+private func checkIdentityTokenData(_ value: IdentityTokenData, _ path: String, _ out: inout [HostMessageProblem]) {
+    if let x0 = value.token {
+        note(&out, "\(path)token", textRule(x0, min: 1, max: 4096), isPatch: false)
+    }
+    if let x1 = value.code {
+        note(&out, "\(path)code", textRule(x1, min: 1, max: 200), isPatch: false)
+    }
+}
+
+private func checkLineAnswer(_ value: LineAnswer, _ path: String, _ out: inout [HostMessageProblem]) {
+    note(&out, "\(path)lineId", textRule(value.lineId, min: 1, max: 200), isPatch: false)
+    if let x0 = value.message {
+        note(&out, "\(path)message", textRule(x0, min: 1, max: 200), isPatch: false)
+    }
+}
+
+private func checkLocaleData(_ value: LocaleData, _ path: String, _ out: inout [HostMessageProblem]) {
+    note(&out, "\(path)locale", textRule(value.locale, format: hostFormats.f7), isPatch: false)
+}
+
+private func checkReply(_ value: Reply, _ path: String, _ out: inout [HostMessageProblem]) {
+    if let x0 = value.lines {
+        note(&out, "\(path)lines", countRule(x0, max: 50), isPatch: false)
+        for (i2, x1) in x0.enumerated() {
+            checkLineAnswer(x1, "\(path)lines.\(i2).", &out)
+        }
+    }
+    if let x3 = value.unmapped {
+        note(&out, "\(path)unmapped", countRule(x3, max: 50), isPatch: false)
+        for (i5, x4) in x3.enumerated() {
+            checkUnmappedLine(x4, "\(path)unmapped.\(i5).", &out)
+        }
+    }
+    if let x6 = value.error {
+        checkReplyError(x6, "\(path)error.", &out)
+    }
+}
+
+private func checkReplyError(_ value: ReplyError, _ path: String, _ out: inout [HostMessageProblem]) {
+    if let x0 = value.message {
+        note(&out, "\(path)message", textRule(x0, min: 1, max: 300), isPatch: false)
+    }
+}
+
+private func checkRestrictionsData(_ value: RestrictionsData, _ path: String, _ out: inout [HostMessageProblem]) {
+    note(&out, "\(path)avoidAllergens", countRule(value.avoidAllergens, max: 10), isPatch: false)
+    for (i1, x0) in value.avoidAllergens.enumerated() {
+        note(&out, "\(path)avoidAllergens.\(i1)", Allergen.allKnown.contains(x0) ? nil : "value", isPatch: false)
+    }
+    note(&out, "\(path)keepDiets", countRule(value.keepDiets, max: 8), isPatch: false)
+    for (i3, x2) in value.keepDiets.enumerated() {
+        note(&out, "\(path)keepDiets.\(i3)", Diet.allKnown.contains(x2) ? nil : "value", isPatch: false)
+    }
+}
+
+private func checkReviewDish(_ value: ReviewDish, _ path: String, _ out: inout [HostMessageProblem]) {
+    if let x0 = value.dishId {
+        note(&out, "\(path)dishId", textRule(x0, min: 1, max: 200), isPatch: false)
+    }
+    if let x1 = value.externalId {
+        note(&out, "\(path)externalId", textRule(x1, min: 1, max: 200), isPatch: false)
+    }
+    note(&out, "\(path)title", textRule(value.title, min: 1, max: 200), isPatch: false)
+}
+
+private func checkReviewRequestData(_ value: ReviewRequestData, _ path: String, _ out: inout [HostMessageProblem]) {
+    note(&out, "\(path)orderId", textRule(value.orderId, min: 1, max: 200), isPatch: false)
+    note(&out, "\(path)dishes", countRule(value.dishes, min: 1, max: 30), isPatch: false)
+    for (i1, x0) in value.dishes.enumerated() {
+        checkReviewDish(x0, "\(path)dishes.\(i1).", &out)
+    }
+}
+
+private func checkSnapshotLine(_ value: SnapshotLine, _ path: String, _ out: inout [HostMessageProblem]) {
+    if let x0 = value.dishId {
+        note(&out, "\(path)dishId", textRule(x0, min: 1, max: 200), isPatch: false)
+    }
+    if let x1 = value.externalId {
+        note(&out, "\(path)externalId", textRule(x1, min: 1, max: 200), isPatch: false)
+    }
+    if let x2 = value.variantId {
+        note(&out, "\(path)variantId", textRule(x2, min: 1, max: 200), isPatch: false)
+    }
+    if let x3 = value.variantExternalId {
+        note(&out, "\(path)variantExternalId", textRule(x3, min: 1, max: 200), isPatch: false)
+    }
+    if let x4 = value.optionIds {
+        note(&out, "\(path)optionIds", countRule(x4, max: 20), isPatch: false)
+        for (i6, x5) in x4.enumerated() {
+            note(&out, "\(path)optionIds.\(i6)", textRule(x5, min: 1, max: 200), isPatch: false)
+        }
+    }
+    if let x7 = value.optionExternalIds {
+        note(&out, "\(path)optionExternalIds", countRule(x7, max: 20), isPatch: false)
+        for (i9, x8) in x7.enumerated() {
+            note(&out, "\(path)optionExternalIds.\(i9)", textRule(x8, min: 1, max: 200), isPatch: false)
+        }
+    }
+    note(&out, "\(path)quantity", integerRule(value.quantity, min: 1, max: 99), isPatch: false)
+    if let x10 = value.picks {
+        note(&out, "\(path)picks", countRule(x10, max: 120), isPatch: false)
+        for (i12, x11) in x10.enumerated() {
+            checkSnapshotPick(x11, "\(path)picks.\(i12).", &out)
+        }
+    }
+}
+
+private func checkSnapshotPick(_ value: SnapshotPick, _ path: String, _ out: inout [HostMessageProblem]) {
+    if let x0 = value.pickId {
+        note(&out, "\(path)pickId", textRule(x0, min: 1, max: 200), isPatch: false)
+    }
+    if let x1 = value.externalId {
+        note(&out, "\(path)externalId", textRule(x1, min: 1, max: 200), isPatch: false)
+    }
+    if let x2 = value.variantExternalId {
+        note(&out, "\(path)variantExternalId", textRule(x2, min: 1, max: 200), isPatch: false)
+    }
+    note(&out, "\(path)count", integerRule(value.count, min: 1, max: 20), isPatch: false)
+}
+
+private func checkStarter(_ value: Starter, _ path: String, _ out: inout [HostMessageProblem]) {
+    note(&out, "\(path)label", textRule(value.label, trim: true, min: 1, max: 60), isPatch: false)
+    if let x0 = value.prompt {
+        note(&out, "\(path)prompt", textRule(x0, trim: true, min: 1, max: 300), isPatch: false)
+    }
+}
+
+private func checkStartersData(_ value: StartersData, _ path: String, _ out: inout [HostMessageProblem]) {
+    note(&out, "\(path)items", countRule(value.items, max: 6), isPatch: false)
+    for (i1, x0) in value.items.enumerated() {
+        checkStarter(x0, "\(path)items.\(i1).", &out)
+    }
+}
+
+private func checkText(_ value: Text, _ path: String, _ out: inout [HostMessageProblem]) {
+    if case let .set(x0)? = value.waiterName {
+        note(&out, "\(path)waiterName", textRule(x0, trim: true, min: 1, max: 40), isPatch: true)
+    }
+    if case let .set(x1)? = value.welcomeTitle {
+        note(&out, "\(path)welcomeTitle", textRule(x1, trim: true, min: 1, max: 80), isPatch: true)
+    }
+    if case let .set(x2)? = value.welcomeSubtitle {
+        note(&out, "\(path)welcomeSubtitle", textRule(x2, trim: true, min: 1, max: 140), isPatch: true)
+    }
+    if case let .set(x3)? = value.placeholder {
+        note(&out, "\(path)placeholder", textRule(x3, trim: true, min: 1, max: 60), isPatch: true)
+    }
+    if let x4 = value.labels {
+        checkTextLabels(x4, "\(path)labels.", &out)
+    }
+}
+
+private func checkTextLabels(_ value: TextLabels, _ path: String, _ out: inout [HostMessageProblem]) {
+    if case let .set(x0)? = value.newChat {
+        note(&out, "\(path)newChat", textRule(x0, trim: true, min: 1, max: 40), isPatch: true)
+    }
+    if case let .set(x1)? = value.tryAgain {
+        note(&out, "\(path)tryAgain", textRule(x1, trim: true, min: 1, max: 40), isPatch: true)
+    }
+    if case let .set(x2)? = value.addToCart {
+        note(&out, "\(path)addToCart", textRule(x2, trim: true, min: 1, max: 40), isPatch: true)
+    }
+    if case let .set(x3)? = value.checkout {
+        note(&out, "\(path)checkout", textRule(x3, trim: true, min: 1, max: 40), isPatch: true)
+    }
+    if case let .set(x4)? = value.callWaiter {
+        note(&out, "\(path)callWaiter", textRule(x4, trim: true, min: 1, max: 40), isPatch: true)
+    }
+    if case let .set(x5)? = value.thinking {
+        note(&out, "\(path)thinking", textRule(x5, trim: true, min: 1, max: 40), isPatch: true)
+    }
+}
+
+private func checkThemeData(_ value: ThemeData, _ path: String, _ out: inout [HostMessageProblem]) {
+    note(&out, "\(path)scheme", ThemeScheme.allKnown.contains(value.scheme) ? nil : "value", isPatch: false)
+}
+
+private func checkUnmappedLine(_ value: UnmappedLine, _ path: String, _ out: inout [HostMessageProblem]) {
+    note(&out, "\(path)externalId", textRule(value.externalId, min: 1, max: 200), isPatch: false)
+}
+
+private func checkVisibilityData(_ value: VisibilityData, _ path: String, _ out: inout [HostMessageProblem]) {
+    if let x0 = value.at {
+        note(&out, "\(path)at", integerRule(x0, min: 0, max: 9007199254740991), isPatch: false)
+    }
+}
+
+/// What the contract refuses in a message from the app, field by field; empty when the page
+/// takes it as it is. A `.refine` (a cart line naming its dish twice) is left to the page.
+func hostMessageProblems(_ message: any HostMessage) -> [HostMessageProblem] {
+    var out: [HostMessageProblem] = []
+    switch message {
+    case let m as HostHelloMessage:
+        checkHostHelloData(m.data, "", &out)
+    case let m as IdentityTokenMessage:
+        checkIdentityTokenData(m.data, "", &out)
+    case let m as ContextMessage:
+        checkContextData(m.data, "", &out)
+    case let m as CartSnapshotMessage:
+        checkCartSnapshotData(m.data, "", &out)
+    case let m as ThemeMessage:
+        checkThemeData(m.data, "", &out)
+    case let m as AppearanceMessage:
+        checkAppearance(m.data, "", &out)
+    case let m as TextMessage:
+        checkText(m.data, "", &out)
+    case let m as LocaleMessage:
+        checkLocaleData(m.data, "", &out)
+    case let m as VisibilityMessage:
+        checkVisibilityData(m.data, "", &out)
+    case let m as ChatSendMessage:
+        checkChatSendData(m.data, "", &out)
+    case let m as StartersMessage:
+        checkStartersData(m.data, "", &out)
+    case let m as RestrictionsMessage:
+        checkRestrictionsData(m.data, "", &out)
+    case let m as GoalMessage:
+        checkGoalData(m.data, "", &out)
+    case let m as ReviewRequestMessage:
+        checkReviewRequestData(m.data, "", &out)
+    case let m as HostReplyMessage:
+        checkReply(m.data, "", &out)
+    default:
+        break
+    }
+    return out
 }

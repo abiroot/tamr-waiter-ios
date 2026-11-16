@@ -43,8 +43,11 @@ final class WebKitHost: NSObject, WebViewDriving, WKNavigationDelegate, WKUIDele
         webView.uiDelegate = self
         webView.allowsBackForwardNavigationGestures = false
         if #available(iOS 16.4, *) {
-            // Safari's Web Inspector, in debug mode only.
+            // Safari's Web Inspector, in debug mode, and only in a Debug build of the app:
+            // inspection exposes the diner's session to anyone with the phone (#738).
+            #if DEBUG
             webView.isInspectable = controller.debug
+            #endif
         }
     }
 
@@ -52,19 +55,30 @@ final class WebKitHost: NSObject, WebViewDriving, WKNavigationDelegate, WKUIDele
         webView.url
     }
 
+    /// Every load of the page (the first, Try again, again after a release or a dead web process)
+    /// comes through here, as a new request: never `webView.reload()`.
     func load(_ url: URL) {
-        webView.load(URLRequest(url: url))
+        webView.load(Self.pageRequest(url))
+    }
+
+    /// The page itself skips WebKit's cache: offline, a cached copy (the page is sent with
+    /// `stale-while-revalidate`) would open unstyled and never fail, so the shell's "couldn't open"
+    /// screen never showed (#675). Its subresources keep the normal cache.
+    nonisolated static func pageRequest(_ url: URL) -> URLRequest {
+        URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
     }
 
     /// `callAsyncJavaScript(arguments:)`: the message is an argument, never pasted into a script.
+    /// WebKit's own method, not the Swift overlay's `Result` form: built with the iOS 26+ SDK, the
+    /// overlay links `libswiftWebKit.dylib`, which iOS before 26 doesn't have (a crash at launch).
     func deliver(_ json: String) {
-        webView.callAsyncJavaScript(
+        webView.__callAsyncJavaScript(
             "window.\(TamrContract.pageReceiver) && window.\(TamrContract.pageReceiver).receive(m)",
             arguments: ["m": json],
-            in: nil,
+            inFrame: nil,
             in: .page
-        ) { [weak self] result in
-            if case let .failure(error) = result {
+        ) { [weak self] _, error in
+            if let error {
                 self?.controller?.trace("-> couldn't reach the page: \(error.localizedDescription)")
             }
         }

@@ -1,5 +1,5 @@
 {
-	"$comment": "What an app can do with an open chat beyond its look (docs/sdk/PLAN.md, Bridge protocol and Customisation). The shell sends context, starters, restrictions and locale again after every ready. restrictions can only add to the diner's own (Tamr's Allergen and DietaryTag values, lower case); an empty starters list brings the restaurant's own back.",
+	"$comment": "What an app can do with an open chat beyond its look (docs/sdk/PLAN.md, Bridge protocol and Customisation). The shell sends context, starters, restrictions, goal and locale again after every ready. restrictions can only add to the diner's own (Tamr's Allergen and DietaryTag values, lower case); an empty starters list brings the restaurant's own back. goal is per meal (#450) and Tamr picks no number: a mode alone checks nothing, and null means the app no longer sets one.",
 	"hostToPage": [
 		{
 			"v": 1,
@@ -133,6 +133,41 @@
 					}
 				]
 			}
+		},
+		{
+			"v": 1,
+			"id": "goal_0001",
+			"type": "goal",
+			"ts": 1792310488000,
+			"data": {
+				"goal": {
+					"mode": "cutting",
+					"kcal": 600,
+					"proteinGrams": 35
+				}
+			}
+		},
+		{
+			"$comment": "A mode with no number: nothing is checked until the diner gives one.",
+			"v": 1,
+			"id": "goal_0002",
+			"type": "goal",
+			"ts": 1792310489000,
+			"data": {
+				"goal": {
+					"mode": "bulking"
+				}
+			}
+		},
+		{
+			"$comment": "The app no longer sets a goal.",
+			"v": 1,
+			"id": "goal_0003",
+			"type": "goal",
+			"ts": 1792310490000,
+			"data": {
+				"goal": null
+			}
 		}
 	],
 	"pageToHost": [
@@ -238,6 +273,39 @@
 					}
 				]
 			}
+		},
+		{
+			"$comment": "Calories out of range: a meal's figure is 100 to 3000.",
+			"v": 1,
+			"id": "goal_0004",
+			"type": "goal",
+			"ts": 1792310491000,
+			"data": {
+				"goal": {
+					"mode": "cutting",
+					"kcal": 6000
+				}
+			}
+		},
+		{
+			"$comment": "A mode Tamr does not have.",
+			"v": 1,
+			"id": "goal_0005",
+			"type": "goal",
+			"ts": 1792310492000,
+			"data": {
+				"goal": {
+					"mode": "keto"
+				}
+			}
+		},
+		{
+			"$comment": "No goal field: send null to clear it.",
+			"v": 1,
+			"id": "goal_0006",
+			"type": "goal",
+			"ts": 1792310493000,
+			"data": {}
 		}
 	]
 }

@@ -224,6 +224,68 @@
 			}
 		]
 	},
+	"nutritionRequest": {
+		"valid": [
+			{
+				"dishes": [
+					{
+						"externalId": "SKU-1042",
+						"calories": 640,
+						"proteinGrams": 42
+					},
+					{
+						"dishId": "cmdish0001",
+						"carbsGrams": 18,
+						"fatGrams": null
+					}
+				]
+			}
+		],
+		"rejected": [
+			{ "$comment": "Nothing to set.", "dishes": [] },
+			{
+				"$comment": "A dish named by both ids.",
+				"dishes": [
+					{
+						"dishId": "cmdish0001",
+						"externalId": "SKU-1042",
+						"calories": 640
+					}
+				]
+			},
+			{
+				"$comment": "Figures are whole numbers.",
+				"dishes": [{ "dishId": "cmdish0001", "calories": 640.5 }]
+			}
+		]
+	},
+	"nutritionResponse": {
+		"valid": [
+			{ "updated": 3 },
+			{
+				"$comment": "A repeat of the same figures writes nothing.",
+				"updated": 0
+			}
+		],
+		"rejected": [{ "$comment": "Missing updated.", "set": 3 }]
+	},
+	"nutritionRejection": {
+		"valid": [
+			{
+				"rows": [
+					{ "index": 0, "reason": "unknown_external_id" },
+					{ "index": 2, "reason": "out_of_range" }
+				]
+			},
+			{
+				"$comment": "A reason this SDK has never seen reads as other.",
+				"rows": [{ "index": 1, "reason": "retired_dish" }]
+			}
+		],
+		"rejected": [
+			{ "$comment": "A rejection names at least one row.", "rows": [] }
+		]
+	},
 	"orderIngestRequest": {
 		"valid": [
 			{
@@ -572,6 +634,12 @@
 												"optionId": "9b1c2d3e-0002",
 												"name": "Garlic",
 												"price": null,
+												"extra": "150",
+												"calories": 90,
+												"proteinGrams": 1,
+												"carbsGrams": 2,
+												"fatGrams": 9,
+												"allergens": [],
 												"externalId": null
 											}
 										]
@@ -584,6 +652,66 @@
 			}
 		],
 		"rejected": [
+			{
+				"$comment": "An option's allergen in the database's spelling, not the contract's lower-case code.",
+				"menu": {
+					"name": "Dinner",
+					"locale": "en",
+					"currency": "USD"
+				},
+				"categories": [
+					{
+						"name": "Mezze",
+						"dishes": [
+							{
+								"dishId": "cmdish0001",
+								"name": "Grilled halloumi",
+								"price": "1200",
+								"currency": "USD",
+								"imageUrl": "https://tamr.link/image-proxy/media/halloumi.webp",
+								"calories": 420,
+								"proteinGrams": 24,
+								"carbsGrams": 8,
+								"fatGrams": 31,
+								"allergens": ["dairy"],
+								"dietaryTags": ["vegetarian"],
+								"available": true,
+								"externalId": "SKU-HALLOUMI",
+								"description": "Grilled, with za'atar.",
+								"sizes": [
+									{
+										"variantId": "9b1c2d3e-0001",
+										"label": "Large",
+										"price": "1600",
+										"externalId": null
+									}
+								],
+								"choices": [
+									{
+										"name": "Sauce",
+										"min": 0,
+										"max": 1,
+										"options": [
+											{
+												"optionId": "9b1c2d3e-0002",
+												"name": "Garlic",
+												"price": null,
+												"extra": "150",
+												"calories": 90,
+												"proteinGrams": 1,
+												"carbsGrams": 2,
+												"fatGrams": 9,
+												"allergens": ["SESAME"],
+												"externalId": null
+											}
+										]
+									}
+								]
+							}
+						]
+					}
+				]
+			},
 			{
 				"$comment": "A price as a number, not minor units as a string.",
 				"menu": {
@@ -612,6 +740,66 @@
 								"description": null,
 								"sizes": [],
 								"choices": []
+							}
+						]
+					}
+				]
+			},
+			{
+				"$comment": "An option's extra as a number, not minor units as a string.",
+				"menu": {
+					"name": "Dinner",
+					"locale": "en",
+					"currency": "USD"
+				},
+				"categories": [
+					{
+						"name": "Mezze",
+						"dishes": [
+							{
+								"dishId": "cmdish0001",
+								"name": "Grilled halloumi",
+								"price": "1200",
+								"currency": "USD",
+								"imageUrl": "https://tamr.link/image-proxy/media/halloumi.webp",
+								"calories": 420,
+								"proteinGrams": 24,
+								"carbsGrams": 8,
+								"fatGrams": 31,
+								"allergens": ["dairy"],
+								"dietaryTags": ["vegetarian"],
+								"available": true,
+								"externalId": "SKU-HALLOUMI",
+								"description": "Grilled, with za'atar.",
+								"sizes": [
+									{
+										"variantId": "9b1c2d3e-0001",
+										"label": "Large",
+										"price": "1600",
+										"externalId": null
+									}
+								],
+								"choices": [
+									{
+										"name": "Sauce",
+										"min": 0,
+										"max": 1,
+										"options": [
+											{
+												"optionId": "9b1c2d3e-0002",
+												"name": "Garlic",
+												"price": null,
+												"extra": 150,
+												"calories": 90,
+												"proteinGrams": 1,
+												"carbsGrams": 2,
+												"fatGrams": 9,
+												"allergens": [],
+												"externalId": null
+											}
+										]
+									}
+								]
 							}
 						]
 					}
@@ -706,12 +894,36 @@
 						]
 					}
 				]
+			},
+			{
+				"$comment": "An app with its own loyalty and shop hides Tamr's (#726): sent with every message.",
+				"message": "Anything sweet after this?",
+				"hide": {
+					"retailSuggestions": true,
+					"loyalty": true
+				}
+			},
+			{
+				"$comment": "The app keeps the diner's nutrition goal (#450): sent with every message, never stored.",
+				"message": "Something for dinner?",
+				"goal": {
+					"mode": "cutting",
+					"kcal": 600
+				}
 			}
 		],
 		"rejected": [
 			{
 				"$comment": "An empty message.",
 				"message": "   "
+			},
+			{
+				"$comment": "A goal over a meal's range (#450): 100 to 3000 kcal.",
+				"message": "Hi",
+				"goal": {
+					"mode": "cutting",
+					"kcal": 50
+				}
 			},
 			{
 				"$comment": "A restriction outside the contract's allergens.",
@@ -889,6 +1101,47 @@
 				}
 			},
 			{
+				"$comment": "A reorder of the diner's usual (#451): one line proposed, one dish gone from the menu named by the order's title, and a reason from a newer server.",
+				"type": "card",
+				"cardId": "call_05r",
+				"card": {
+					"kind": "cart_proposal",
+					"lines": [
+						{
+							"lineId": "ln_0004",
+							"dishId": "cmdish0003",
+							"variantId": null,
+							"optionIds": [],
+							"externalId": "SKU-1042",
+							"variantExternalId": null,
+							"optionExternalIds": [],
+							"title": "Kafta plate",
+							"variantLabel": null,
+							"choices": [],
+							"unitPrice": "1200",
+							"currency": "USD",
+							"imageUrl": null,
+							"quantity": 2,
+							"note": null
+						}
+					],
+					"reorder": {
+						"which": "usual",
+						"placedAt": "2026-11-04T19:30:00.000Z",
+						"dropped": [
+							{
+								"title": "Mixed grill for two",
+								"reason": "not_on_menu"
+							},
+							{
+								"title": "Extra bread",
+								"reason": "a_reason_from_a_newer_server"
+							}
+						]
+					}
+				}
+			},
+			{
 				"type": "card",
 				"cardId": "call_06",
 				"card": {
@@ -933,6 +1186,12 @@
 												"optionId": "opt_saj",
 												"name": "Saj",
 												"price": null,
+												"extra": null,
+												"calories": null,
+												"proteinGrams": null,
+												"carbsGrams": null,
+												"fatGrams": null,
+												"allergens": [],
 												"externalId": null
 											}
 										]
@@ -942,6 +1201,234 @@
 						],
 						"framing": null,
 						"offeredAt": "2026-11-04T19:40:00.000Z"
+					}
+				}
+			},
+			{
+				"$comment": "A diner with a nutrition goal (#450): which dishes fit it by the restaurant's own figures, and which have none to tell (never shown as fitting).",
+				"type": "card",
+				"cardId": "call_07",
+				"card": {
+					"kind": "dishes",
+					"layout": "carousel",
+					"framing": "Lighter picks",
+					"dishes": [
+						{
+							"dishId": "cmdish0003",
+							"name": "Chicken power bowl",
+							"price": "1100",
+							"currency": "USD",
+							"imageUrl": null,
+							"calories": 520,
+							"proteinGrams": 46,
+							"carbsGrams": null,
+							"fatGrams": null,
+							"allergens": [],
+							"dietaryTags": [],
+							"available": true,
+							"externalId": null
+						},
+						{
+							"dishId": "cmdish0004",
+							"name": "Grain bowl",
+							"price": "1100",
+							"currency": "USD",
+							"imageUrl": null,
+							"calories": null,
+							"proteinGrams": null,
+							"carbsGrams": null,
+							"fatGrams": null,
+							"allergens": [],
+							"dietaryTags": [],
+							"available": true,
+							"externalId": null
+						}
+					],
+					"goal": {
+						"mode": "cutting",
+						"fits": ["cmdish0003"],
+						"unknown": ["cmdish0004"]
+					}
+				}
+			},
+			{
+				"$comment": "A basket's figures, each summed only when every dish has it, and how it stands against the goal (#450). A fit from a newer server reads as other.",
+				"type": "card",
+				"cardId": "call_08",
+				"card": {
+					"kind": "surprise_basket",
+					"baskets": [
+						{
+							"items": [
+								{
+									"dish": {
+										"dishId": "cmdish0003",
+										"name": "Chicken power bowl",
+										"price": "1100",
+										"currency": "USD",
+										"imageUrl": null,
+										"calories": 520,
+										"proteinGrams": 46,
+										"carbsGrams": null,
+										"fatGrams": null,
+										"allergens": [],
+										"dietaryTags": [],
+										"available": true,
+										"externalId": null
+									},
+									"role": "main"
+								}
+							],
+							"total": "1100",
+							"nutrition": {
+								"calories": 520,
+								"proteinGrams": 46,
+								"carbsGrams": null,
+								"fatGrams": null
+							},
+							"goalFit": "fits"
+						},
+						{
+							"items": [
+								{
+									"dish": {
+										"dishId": "cmdish0004",
+										"name": "Grain bowl",
+										"price": "1100",
+										"currency": "USD",
+										"imageUrl": null,
+										"calories": null,
+										"proteinGrams": null,
+										"carbsGrams": null,
+										"fatGrams": null,
+										"allergens": [],
+										"dietaryTags": [],
+										"available": true,
+										"externalId": null
+									}
+								}
+							],
+							"total": "1100",
+							"goalFit": "partly"
+						}
+					],
+					"budget": null
+				}
+			},
+			{
+				"$comment": "A dish built with the waiter, one choice at a time (#452): the protein picked, two of three sides still to pick, the figures so far.",
+				"type": "card",
+				"cardId": "call_09",
+				"card": {
+					"kind": "build",
+					"build": {
+						"buildId": "5d0c9a1e-6b3a-4f0e-9a51-2c7e1f0b8a11",
+						"dish": {
+							"dishId": "cmdish0005",
+							"name": "Build your own platter",
+							"price": "1750",
+							"currency": "USD",
+							"imageUrl": null,
+							"calories": null,
+							"proteinGrams": null,
+							"carbsGrams": null,
+							"fatGrams": null,
+							"allergens": [],
+							"dietaryTags": [],
+							"available": true,
+							"externalId": null
+						},
+						"size": null,
+						"needsSize": false,
+						"groups": [
+							{
+								"name": "Protein",
+								"min": 1,
+								"max": 1,
+								"options": [
+									{
+										"optionId": "opt_chicken",
+										"name": "Grilled chicken",
+										"price": null,
+										"extra": null,
+										"calories": 320,
+										"proteinGrams": 40,
+										"carbsGrams": null,
+										"fatGrams": null,
+										"allergens": [],
+										"externalId": null
+									},
+									{
+										"optionId": "opt_steak",
+										"name": "Steak",
+										"price": null,
+										"extra": "300",
+										"calories": 410,
+										"proteinGrams": 38,
+										"carbsGrams": null,
+										"fatGrams": null,
+										"allergens": [],
+										"externalId": null
+									}
+								],
+								"picked": ["opt_chicken"],
+								"remaining": 0
+							},
+							{
+								"name": "Sides",
+								"min": 3,
+								"max": 3,
+								"options": [
+									{
+										"optionId": "opt_hummus",
+										"name": "Hummus",
+										"price": null,
+										"extra": null,
+										"calories": 180,
+										"proteinGrams": 6,
+										"carbsGrams": null,
+										"fatGrams": null,
+										"allergens": ["sesame"],
+										"externalId": null
+									},
+									{
+										"optionId": "opt_rice",
+										"name": "Rice",
+										"price": null,
+										"extra": null,
+										"calories": 210,
+										"proteinGrams": 4,
+										"carbsGrams": null,
+										"fatGrams": null,
+										"allergens": [],
+										"externalId": null
+									},
+									{
+										"optionId": "opt_salad",
+										"name": "Fattoush",
+										"price": null,
+										"extra": null,
+										"calories": 90,
+										"proteinGrams": 2,
+										"carbsGrams": null,
+										"fatGrams": null,
+										"allergens": [],
+										"externalId": null
+									}
+								],
+								"picked": ["opt_hummus"],
+								"remaining": 2
+							}
+						],
+						"complete": false,
+						"total": "1750",
+						"nutrition": {
+							"calories": 650,
+							"proteinGrams": 50,
+							"carbsGrams": null,
+							"fatGrams": null
+						},
+						"goalFit": "fits"
 					}
 				}
 			}
@@ -956,6 +1443,133 @@
 				"$comment": "A card without its card.",
 				"type": "card",
 				"cardId": "call_01"
+			},
+			{
+				"$comment": "A reorder without when the order was placed (#451).",
+				"type": "card",
+				"cardId": "call_05r",
+				"card": {
+					"kind": "cart_proposal",
+					"lines": [],
+					"reorder": { "which": "last", "dropped": [] }
+				}
+			},
+			{
+				"$comment": "A build with a pick that is not an option id.",
+				"type": "card",
+				"cardId": "call_09",
+				"card": {
+					"kind": "build",
+					"build": {
+						"buildId": "5d0c9a1e-6b3a-4f0e-9a51-2c7e1f0b8a11",
+						"dish": {
+							"dishId": "cmdish0005",
+							"name": "Build your own platter",
+							"price": "1750",
+							"currency": "USD",
+							"imageUrl": null,
+							"calories": null,
+							"proteinGrams": null,
+							"carbsGrams": null,
+							"fatGrams": null,
+							"allergens": [],
+							"dietaryTags": [],
+							"available": true,
+							"externalId": null
+						},
+						"size": null,
+						"needsSize": false,
+						"groups": [
+							{
+								"name": "Protein",
+								"min": 1,
+								"max": 1,
+								"options": [
+									{
+										"optionId": "opt_chicken",
+										"name": "Grilled chicken",
+										"price": null,
+										"extra": null,
+										"calories": 320,
+										"proteinGrams": 40,
+										"carbsGrams": null,
+										"fatGrams": null,
+										"allergens": [],
+										"externalId": null
+									},
+									{
+										"optionId": "opt_steak",
+										"name": "Steak",
+										"price": null,
+										"extra": "300",
+										"calories": 410,
+										"proteinGrams": 38,
+										"carbsGrams": null,
+										"fatGrams": null,
+										"allergens": [],
+										"externalId": null
+									}
+								],
+								"picked": [123],
+								"remaining": 0
+							},
+							{
+								"name": "Sides",
+								"min": 3,
+								"max": 3,
+								"options": [
+									{
+										"optionId": "opt_hummus",
+										"name": "Hummus",
+										"price": null,
+										"extra": null,
+										"calories": 180,
+										"proteinGrams": 6,
+										"carbsGrams": null,
+										"fatGrams": null,
+										"allergens": [],
+										"externalId": null
+									},
+									{
+										"optionId": "opt_rice",
+										"name": "Rice",
+										"price": null,
+										"extra": null,
+										"calories": 210,
+										"proteinGrams": 4,
+										"carbsGrams": null,
+										"fatGrams": null,
+										"allergens": [],
+										"externalId": null
+									},
+									{
+										"optionId": "opt_salad",
+										"name": "Fattoush",
+										"price": null,
+										"extra": null,
+										"calories": 90,
+										"proteinGrams": 2,
+										"carbsGrams": null,
+										"fatGrams": null,
+										"allergens": [],
+										"externalId": null
+									}
+								],
+								"picked": ["opt_hummus"],
+								"remaining": 2
+							}
+						],
+						"complete": false,
+						"total": "1750",
+						"nutrition": {
+							"calories": 650,
+							"proteinGrams": 50,
+							"carbsGrams": null,
+							"fatGrams": null
+						},
+						"goalFit": "fits"
+					}
+				}
 			}
 		]
 	},
@@ -1067,7 +1681,8 @@
 					"shown": {
 						"showHeader": false,
 						"showStarters": true,
-						"hideVoice": true
+						"hideVoice": true,
+						"hideLoyalty": true
 					},
 					"wording": {
 						"en": {
@@ -1244,6 +1859,15 @@
 				"branch": "achrafieh",
 				"mode": "dine_in",
 				"takes": ["orders"]
+			},
+			{
+				"$comment": "The first open on screen, preloaded: usable before the tap (#445).",
+				"branch": "hamra",
+				"open": { "ms": 42, "preloaded": true }
+			},
+			{
+				"$comment": "A cold first open, 870 ms from the tap (#445).",
+				"open": { "ms": 870, "preloaded": false }
 			}
 		],
 		"rejected": [
@@ -1252,6 +1876,14 @@
 			},
 			{
 				"branch": "Hamra Street"
+			},
+			{
+				"$comment": "An open needs both its time and whether it was preloaded.",
+				"open": { "ms": 120 }
+			},
+			{
+				"$comment": "No open is longer than ten minutes.",
+				"open": { "ms": 600001, "preloaded": false }
 			}
 		]
 	},
@@ -1350,6 +1982,66 @@
 										"externalId": "SKU-HALLOUMI"
 									}
 								]
+							},
+							{
+								"kind": "order_offer",
+								"offer": {
+									"items": [
+										{
+											"dish": {
+												"dishId": "cmdish0001",
+												"name": "Grilled halloumi",
+												"price": "1200",
+												"currency": "USD",
+												"imageUrl": "https://tamr.link/image-proxy/media/halloumi.webp",
+												"calories": 420,
+												"proteinGrams": 24,
+												"carbsGrams": 8,
+												"fatGrams": 31,
+												"allergens": ["dairy"],
+												"dietaryTags": ["vegetarian"],
+												"available": true,
+												"externalId": "SKU-HALLOUMI"
+											},
+											"quantity": 2,
+											"size": null,
+											"choices": [],
+											"note": "No onions",
+											"dishSizes": [
+												{
+													"variantId": "var_large",
+													"label": "Large",
+													"price": "1500",
+													"externalId": null
+												}
+											],
+											"dishChoices": [
+												{
+													"name": "Bread",
+													"min": 1,
+													"max": 1,
+													"options": [
+														{
+															"optionId": "opt_saj",
+															"name": "Saj",
+															"price": null,
+															"extra": null,
+															"calories": null,
+															"proteinGrams": null,
+															"carbsGrams": null,
+															"fatGrams": null,
+															"allergens": [],
+															"externalId": null
+														}
+													]
+												}
+											]
+										}
+									],
+									"framing": null,
+									"offeredAt": "2026-11-04T19:40:00.000Z",
+									"added": true
+								}
 							}
 						]
 					}
@@ -1410,6 +2102,12 @@
 	"clientApiErrorData": {
 		"valid": [
 			{
+				"$comment": "A treat that can't be redeemed (#455): why, an open list.",
+				"code": "treat_refused",
+				"requestId": "req_treat_01",
+				"treatRefusal": "already_redeemed"
+			},
+			{
 				"code": "waiter_resting",
 				"requestId": "9f1c0a4e-1d2b-4c3a-9e8f-0123456789ab",
 				"fallback": {
@@ -1451,6 +2149,10 @@
 				"code": "pay_refused",
 				"payRefusal": "payment_in_progress",
 				"paymentId": "pay_0002"
+			},
+			{
+				"$comment": "A guest's session can't keep a goal (#450).",
+				"code": "identity_required"
 			},
 			{
 				"$comment": "A pickup refused (#599): Orders go to the app's cart, or the menu takes no orders.",
@@ -1524,6 +2226,41 @@
 				"$comment": "A pickup refusal from a newer server reads as other.",
 				"code": "pickup_refused",
 				"pickupRefusal": "kitchen_full"
+			},
+			{
+				"$comment": "An order's dishes can't be rated (#453): No such order for this user yet.",
+				"code": "review_refused",
+				"requestId": "req_03",
+				"reviewRefusal": "order_not_found"
+			},
+			{
+				"$comment": "An order's dishes can't be rated (#453): The order was cancelled or refunded.",
+				"code": "review_refused",
+				"requestId": "req_03",
+				"reviewRefusal": "order_closed"
+			},
+			{
+				"$comment": "An order's dishes can't be rated (#453): Placed more than 30 days ago.",
+				"code": "review_refused",
+				"requestId": "req_03",
+				"reviewRefusal": "too_old"
+			},
+			{
+				"$comment": "An order's dishes can't be rated (#453): None of the dishes is on the order and placed.",
+				"code": "review_refused",
+				"requestId": "req_03",
+				"reviewRefusal": "nothing_to_review"
+			},
+			{
+				"$comment": "An order's dishes can't be rated (#453): Anything else.",
+				"code": "review_refused",
+				"requestId": "req_03",
+				"reviewRefusal": "other"
+			},
+			{
+				"$comment": "A review refusal from a newer server reads as other.",
+				"code": "review_refused",
+				"reviewRefusal": "kitchen_closed"
 			}
 		],
 		"rejected": [
@@ -1648,6 +2385,86 @@
 			{
 				"$comment": "No unmapped list.",
 				"lines": []
+			}
+		]
+	},
+	"usualResponse": {
+		"valid": [
+			{
+				"$comment": "The usual (#451): a dish on sale, and one ordered in a size that is no longer on the menu.",
+				"usual": {
+					"kind": "usual",
+					"orders": 8,
+					"lastOrderedAt": "2026-11-04T19:30:00.000Z",
+					"items": [
+						{
+							"title": "Kafta plate",
+							"quantity": 2,
+							"variantLabel": "Large",
+							"dish": {
+								"dishId": "cmdish0003",
+								"name": "Kafta plate",
+								"price": "1200",
+								"currency": "USD",
+								"imageUrl": null,
+								"calories": null,
+								"proteinGrams": null,
+								"carbsGrams": null,
+								"fatGrams": null,
+								"allergens": [],
+								"dietaryTags": [],
+								"available": true,
+								"externalId": "SKU-1042"
+							},
+							"onMenu": true,
+							"available": true
+						},
+						{
+							"title": "Mixed grill for two",
+							"quantity": 1,
+							"variantLabel": null,
+							"dish": null,
+							"onMenu": false,
+							"available": false
+						}
+					]
+				}
+			},
+			{
+				"$comment": "No usual yet: the last order, whole, with a kind from a newer server.",
+				"usual": {
+					"kind": "a_kind_from_a_newer_server",
+					"orders": 1,
+					"lastOrderedAt": "2026-11-10T12:05:00.000Z",
+					"items": [
+						{
+							"title": "Fattoush",
+							"quantity": 1,
+							"variantLabel": null,
+							"dish": null,
+							"onMenu": false,
+							"available": false
+						}
+					]
+				}
+			},
+			{
+				"$comment": "A guest's session, or a diner with no completed order.",
+				"usual": null
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No usual key."
+			},
+			{
+				"$comment": "No items.",
+				"usual": {
+					"kind": "last",
+					"orders": 1,
+					"lastOrderedAt": "2026-11-10T12:05:00.000Z",
+					"items": []
+				}
 			}
 		]
 	},
@@ -2391,6 +3208,465 @@
 					"paymentDueAt": null,
 					"paid": false
 				}
+			}
+		]
+	},
+	"goalRequest": {
+		"valid": [
+			{
+				"goal": {
+					"mode": "maintain",
+					"kcal": 900
+				}
+			},
+			{
+				"$comment": "A mode alone: the waiter asks for the per-meal figure, and nothing is checked until then.",
+				"goal": {
+					"mode": "bulking"
+				}
+			},
+			{
+				"goal": {
+					"mode": "bulking",
+					"kcal": 800,
+					"proteinGrams": 45
+				}
+			},
+			{
+				"$comment": "Clears the goal the diner keeps.",
+				"goal": null
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No goal field: send null to clear it.",
+				"kcal": 600
+			},
+			{
+				"$comment": "Protein out of range: 5 to 300 g a meal.",
+				"goal": {
+					"mode": "bulking",
+					"proteinGrams": 400
+				}
+			},
+			{
+				"$comment": "A figure that isn't a whole number.",
+				"goal": {
+					"mode": "cutting",
+					"kcal": 600.5
+				}
+			},
+			{
+				"$comment": "A mode Tamr does not have.",
+				"goal": {
+					"mode": "keto"
+				}
+			}
+		]
+	},
+	"goalResponse": {
+		"valid": [
+			{
+				"goal": {
+					"mode": "cutting",
+					"kcal": 600
+				},
+				"canSet": true
+			},
+			{
+				"$comment": "No goal kept yet.",
+				"goal": null,
+				"canSet": true
+			},
+			{
+				"$comment": "A guest's session, or a test key's: Tamr keeps no goal for it.",
+				"goal": null,
+				"canSet": false
+			},
+			{
+				"$comment": "A mode from a newer Tamr reads as other.",
+				"goal": {
+					"mode": "recomp"
+				},
+				"canSet": true
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No canSet.",
+				"goal": null
+			}
+		]
+	},
+	"reviewMatchRequest": {
+		"valid": [
+			{
+				"orderId": "A-99812",
+				"dishes": [
+					{
+						"externalId": "SKU-1042",
+						"title": "Kafta plate"
+					},
+					{
+						"dishId": "dish_fattoush",
+						"title": "Fattoush"
+					},
+					{
+						"externalId": "DRINK-7",
+						"title": "Lemonade"
+					}
+				]
+			},
+			{
+				"$comment": "Both ids: Tamr's is used.",
+				"orderId": "A-99812",
+				"dishes": [
+					{
+						"dishId": "dish_kafta",
+						"externalId": "SKU-1042",
+						"title": "Kafta plate"
+					}
+				]
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "A dish with no id.",
+				"orderId": "A-99812",
+				"dishes": [
+					{
+						"title": "Kafta plate"
+					}
+				]
+			},
+			{
+				"$comment": "No dishes.",
+				"orderId": "A-99812",
+				"dishes": []
+			},
+			{
+				"$comment": "No order.",
+				"dishes": [
+					{
+						"dishId": "dish_kafta",
+						"title": "Kafta plate"
+					}
+				]
+			},
+			{
+				"$comment": "More than 30 dishes.",
+				"orderId": "A-99812",
+				"dishes": [
+					{
+						"dishId": "dish_0",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_1",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_2",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_3",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_4",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_5",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_6",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_7",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_8",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_9",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_10",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_11",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_12",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_13",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_14",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_15",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_16",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_17",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_18",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_19",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_20",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_21",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_22",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_23",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_24",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_25",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_26",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_27",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_28",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_29",
+						"title": "Dish"
+					},
+					{
+						"dishId": "dish_30",
+						"title": "Dish"
+					}
+				]
+			}
+		]
+	},
+	"reviewMatchResponse": {
+		"valid": [
+			{
+				"dishes": [
+					{
+						"dishId": "dish_kafta",
+						"externalId": "SKU-1042",
+						"title": "Kafta plate",
+						"imageUrl": "https://tamr.link/image-proxy/tamr/dishes/kafta.webp",
+						"rating": null
+					},
+					{
+						"$comment": "Rated already on this order: the sheet opens on it.",
+						"dishId": "dish_fattoush",
+						"externalId": null,
+						"title": "Fattoush",
+						"imageUrl": null,
+						"rating": 4
+					}
+				],
+				"unmapped": [
+					{
+						"externalId": "DRINK-7"
+					}
+				]
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "Nothing to rate is a review_refused, never an empty list.",
+				"dishes": [],
+				"unmapped": []
+			},
+			{
+				"$comment": "A rating out of 1 to 5.",
+				"dishes": [
+					{
+						"dishId": "dish_kafta",
+						"externalId": null,
+						"title": "Kafta plate",
+						"imageUrl": null,
+						"rating": 6
+					}
+				],
+				"unmapped": []
+			},
+			{
+				"$comment": "An image that isn't https.",
+				"dishes": [
+					{
+						"dishId": "dish_kafta",
+						"externalId": null,
+						"title": "Kafta plate",
+						"imageUrl": "http://example.test/kafta.webp",
+						"rating": null
+					}
+				],
+				"unmapped": []
+			}
+		]
+	},
+	"reviewSubmitRequest": {
+		"valid": [
+			{
+				"orderId": "A-99812",
+				"ratings": [
+					{
+						"dishId": "dish_kafta",
+						"rating": 5
+					},
+					{
+						"dishId": "dish_fattoush",
+						"rating": 3
+					}
+				]
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No ratings.",
+				"orderId": "A-99812",
+				"ratings": []
+			},
+			{
+				"$comment": "Zero stars.",
+				"orderId": "A-99812",
+				"ratings": [
+					{
+						"dishId": "dish_kafta",
+						"rating": 0
+					}
+				]
+			},
+			{
+				"$comment": "Half a star.",
+				"orderId": "A-99812",
+				"ratings": [
+					{
+						"dishId": "dish_kafta",
+						"rating": 4.5
+					}
+				]
+			},
+			{
+				"$comment": "A dish by the host's id: the match gives Tamr's.",
+				"orderId": "A-99812",
+				"ratings": [
+					{
+						"externalId": "SKU-1042",
+						"rating": 5
+					}
+				]
+			}
+		]
+	},
+	"reviewSubmitResponse": {
+		"valid": [
+			{
+				"reviews": [
+					{
+						"reviewId": "rev_0001",
+						"dishId": "dish_kafta",
+						"externalId": "SKU-1042",
+						"rating": 5
+					},
+					{
+						"reviewId": "rev_0002",
+						"dishId": "dish_fattoush",
+						"externalId": null,
+						"rating": 3
+					}
+				]
+			},
+			{
+				"$comment": "A test key writes nothing: its ids start with test_.",
+				"reviews": [
+					{
+						"reviewId": "test_5b0c6f9e",
+						"dishId": "dish_kafta",
+						"externalId": "SKU-1042",
+						"rating": 5
+					}
+				]
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No reviews.",
+				"reviews": []
+			}
+		]
+	},
+	"treatRedeemRequest": {
+		"valid": [
+			{
+				"externalUserId": "user-88213",
+				"externalOrderId": "ord_55120"
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "No order to redeem it on.",
+				"externalUserId": "user-88213"
+			}
+		]
+	},
+	"treatRedeemResponse": {
+		"valid": [
+			{
+				"treatId": "trt_9fK2mQ7xLp4vR8sTn1Yc3Wb6",
+				"dishId": "dish_knafeh",
+				"externalOrderId": "ord_55120",
+				"redeemedAt": "2026-11-02T20:05:00.000Z"
+			}
+		],
+		"rejected": [
+			{
+				"$comment": "redeemedAt not an ISO date.",
+				"treatId": "trt_9fK2mQ7xLp4vR8sTn1Yc3Wb6",
+				"dishId": null,
+				"externalOrderId": "ord_55120",
+				"redeemedAt": "yesterday"
 			}
 		]
 	}

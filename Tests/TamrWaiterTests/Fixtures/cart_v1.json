@@ -148,6 +148,40 @@
 			}
 		},
 		{
+			"$comment": "A treat on the house (#455): the line keeps the menu's price; the host's checkout prices it at zero and redeems the id once the order is placed.",
+			"v": 1,
+			"id": "add_0012",
+			"type": "cart.add",
+			"ts": 1792310438000,
+			"data": {
+				"lines": [
+					{
+						"lineId": "ln_0012",
+						"dishId": "dish_lemonade",
+						"variantId": null,
+						"optionIds": [],
+						"externalId": "DRK-7",
+						"variantExternalId": null,
+						"optionExternalIds": [],
+						"title": "Mint lemonade",
+						"variantLabel": null,
+						"choices": [],
+						"unitPrice": "450",
+						"currency": "USD",
+						"imageUrl": null,
+						"quantity": 3,
+						"note": null,
+						"treat": {
+							"treatId": "trt_9fK2mQ7xLp4vR8sTn1Yc3Wb6",
+							"expiresAt": "2026-11-03T19:20:00.000Z"
+						}
+					}
+				],
+				"origin": "diner",
+				"conversationId": "cm1conv0001"
+			}
+		},
+		{
 			"v": 1,
 			"id": "msg_0039",
 			"type": "cart.update",
@@ -630,6 +664,39 @@
 					}
 				],
 				"origin": "waiter",
+				"conversationId": "cm1conv0001"
+			}
+		},
+		{
+			"$comment": "A treat with no expiry.",
+			"v": 1,
+			"id": "add_0013",
+			"type": "cart.add",
+			"ts": 1792310438000,
+			"data": {
+				"lines": [
+					{
+						"lineId": "ln_0012",
+						"dishId": "dish_lemonade",
+						"variantId": null,
+						"optionIds": [],
+						"externalId": "DRK-7",
+						"variantExternalId": null,
+						"optionExternalIds": [],
+						"title": "Mint lemonade",
+						"variantLabel": null,
+						"choices": [],
+						"unitPrice": "450",
+						"currency": "USD",
+						"imageUrl": null,
+						"quantity": 3,
+						"note": null,
+						"treat": {
+							"treatId": "trt_9fK2mQ7xLp4vR8sTn1Yc3Wb6"
+						}
+					}
+				],
+				"origin": "diner",
 				"conversationId": "cm1conv0001"
 			}
 		}

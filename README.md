@@ -27,7 +27,7 @@ Dependency Rule to **Up to Next Major Version** from `1.0.0`, and add `TamrWaite
 
 ### You need a publishable key
 
-Create one in the dashboard (Settings, App keys).
+Create one in the dashboard (Settings, App keys), and list your app's bundle id on it. The SDK sends the bundle id, and a key used from an app it doesn't list is logged, never refused. The id is sent by the iOS SDK (bundle id), the Android SDK (package name) and the React Native SDK when the app has `expo-application`. The Flutter SDK doesn't send one yet, and the Web SDK relies on the key's listed origins instead.
 
 - **A key in guest mode** opens the chat for anyone: diners are guests.
 - **A live key without guest mode** needs to know who the diner is: your backend signs a short diner token,
@@ -90,15 +90,19 @@ present(TamrWaiterViewController(controller: waiter), animated: true)
 
 Call `dispose()` when the diner signs out, and create a new controller for the next diner.
 
+One controller is one chat, shown in one place at a time: a view that shows it takes it from the last one.
+Two controllers are two separate chats.
+
 | Method | What it does |
 | --- | --- |
 | `preload()` | Load the chat hidden, so it opens at once. A hidden chat is released after 10 minutes and on a memory warning, and loads again when your app comes back. While hidden, its web view waits at zero size behind everything in your key window, with touches, VoiceOver and the status-bar tap off: iOS suspends a web view that is in no window |
 | `reload()`, `dispose()` | Load again after a failure (`pageState == .failed`); stop for good |
 | `setIdentityProvider(_:)` | Returns `.token(…)`, `.code(…)` or `nil`, within 15 seconds |
 | `onCartAdd`, `onCartUpdate`, `onCartRemove` | Answer the waiter's cart proposals, per line, within 15 seconds |
-| `on(_:_:)` | `ready`, `state`, `checkout`, `open_dish`, `order.placed`, `payment.completed`, `booking.made`, `booking.changed`, `waiter.called`, `close`, `log`… Returns the function that removes it |
-| `setLocale`, `setAppearance`, `setText`, `setTheme`, `setContext`, `setStarters`, `setRestrictions` | Kept and sent again whenever the page loads again |
+| `on(_:_:)` | `ready`, `state`, `checkout`, `open_dish`, `order.placed`, `order.cancelled`, `payment.completed`, `review.submitted`, `booking.made`, `booking.changed`, `waiter.called`, `close`, `log`… Returns the function that removes it |
+| `setLocale`, `setAppearance`, `setText`, `setTheme`, `setContext`, `setStarters`, `setRestrictions`, `setGoal` | Kept and sent again whenever the page loads again |
 | `sendCart(_:)`, `sendMessage(_:)`, `newChat()`, `clearIdentity()` | One-off messages, held until the chat is ready |
+| `requestReview(orderId:dishes:)` | After an order is served: the chat asks the diner to rate each dish (1 to 5 stars), held until the chat is ready. The dishes (1 to 30) are named by `dishId` or `externalId`, with the title the diner saw. The order must be one your backend sent (`POST /api/v1/sdk/orders`) for this diner; `review.submitted` says what they rated |
 
 These names are the SDKs' shared shape (the Web SDK's README sets it out). The page's messages are
 protocols and the SDK's own kinds (`TamrPageState`, `TamrWaiterViewController.Presentation`) are structs,
@@ -120,7 +124,13 @@ diner closes it, the waiter is told it's shown again and checks the payment.
 
 `debug: true` prints every message both ways, the page's loads and its own trace, as `[tamr] page <level>: …`
 and `[tamr] shell: …`, to `onLog` or the system log (subsystem `link.tamr.waiter`), and makes the web view
-inspectable in Safari's Web Inspector (iOS 16.4+). Tokens, codes and what the diner types are never logged.
+inspectable (in a debug build of your app only) in Safari's Web Inspector (iOS 16.4+). Tokens, codes and what the diner types are never logged.
+
+In a Debug build, a value the contract refuses (a colour that isn't `#RRGGBB`, seven starters) stops at the
+call (`assertionFailure`) naming the message, the field and the rule. A Release build sends a bad colour or
+label anyway (the page drops that field alone) and doesn't send any other refused message, and writes
+`[tamr] shell: appearance: dropped accent (format)` once to `onLog` or the system log as an error, even
+without `debug`.
 
 ## The example
 

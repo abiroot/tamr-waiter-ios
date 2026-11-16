@@ -16,6 +16,7 @@ struct MenuView: View {
     @State private var sheet = false
     @State private var page = false
     @State private var onTop = false
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         NavigationStack {
@@ -43,6 +44,8 @@ struct MenuView: View {
         }
         // The menu screen: where the waiter is likely to be opened.
         .onAppear { model.waiter?.preload() }
+        // The page follows the app's theme (setTheme), not the system's: pass the app's along.
+        .task(id: colorScheme) { model.waiter?.setTheme(colorScheme == .dark ? .dark : .light) }
         .sheet(isPresented: $sheet) {
             if let waiter = model.waiter {
                 TamrWaiterView(controller: waiter)

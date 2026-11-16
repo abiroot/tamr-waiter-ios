@@ -40,6 +40,10 @@
 		{
 			"name": "webhooks_v1.json",
 			"since": "1.0.0"
+		},
+		{
+			"name": "formats_v1.json",
+			"since": "1.0.0"
 		}
 	]
 }
