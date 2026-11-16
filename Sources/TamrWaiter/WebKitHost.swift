@@ -69,8 +69,8 @@ final class WebKitHost: NSObject, WebViewDriving, WKNavigationDelegate, WKUIDele
     }
 
     /// `callAsyncJavaScript(arguments:)`: the message is an argument, never pasted into a script.
-    /// WebKit's own method, not the Swift overlay's `Result` form: built with the iOS 26+ SDK, the
-    /// overlay links `libswiftWebKit.dylib`, which iOS before 26 doesn't have (a crash at launch).
+    /// WebKit's own method, not the Swift overlay's `Result` form: the
+    /// overlay links `libswiftWebKit.dylib`, which the iOS 18.4 and 18.5 simulators lack (a crash at launch, #768).
     func deliver(_ json: String) {
         webView.__callAsyncJavaScript(
             "window.\(TamrContract.pageReceiver) && window.\(TamrContract.pageReceiver).receive(m)",

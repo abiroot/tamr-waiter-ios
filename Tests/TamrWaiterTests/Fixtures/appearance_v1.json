@@ -37,6 +37,30 @@
 		},
 		{
 			"v": 1,
+			"id": "msg_0097",
+			"type": "appearance",
+			"ts": 1792310497000,
+			"data": {
+				"headerColor": "#0F3D2A",
+				"bubbleColor": "#1F7A4D",
+				"buttonColor": "#C2410C",
+				"cardColor": "#F7F5F0",
+				"mutedColor": "#5E6166",
+				"lineColor": "#E2E0DA",
+				"positiveColor": "#157A4B",
+				"header": "brand",
+				"bubble": "brand",
+				"buttons": "rounded",
+				"starterStyle": "cards",
+				"showWaiterName": false,
+				"showWelcome": true,
+				"showQuickReplies": false,
+				"showNewChat": false,
+				"showCheckout": false
+			}
+		},
+		{
+			"v": 1,
 			"id": "msg_0090",
 			"type": "appearance",
 			"ts": 1792310490000,

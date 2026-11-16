@@ -164,6 +164,61 @@ public struct BookingStatus: RawRepresentable, Hashable, Sendable, Codable, Cust
     }
 }
 
+/// BubbleStyle. New values may be added: keep a default branch.
+public struct BubbleStyle: RawRepresentable, Hashable, Sendable, Codable, CustomStringConvertible {
+    public let rawValue: String
+    public init(rawValue: String) { self.rawValue = rawValue }
+    public var description: String { rawValue }
+
+    public static let soft = BubbleStyle(rawValue: "soft")
+    public static let brand = BubbleStyle(rawValue: "brand")
+
+    /// Every value this version knows.
+    public static let allKnown: [BubbleStyle] = [.soft, .brand]
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let raw = try container.decode(String.self)
+        guard Self.allKnown.contains(Self(rawValue: raw)) else {
+                    throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unknown BubbleStyle \(raw)")
+                }
+                self = Self(rawValue: raw)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
+}
+
+/// ButtonShape. New values may be added: keep a default branch.
+public struct ButtonShape: RawRepresentable, Hashable, Sendable, Codable, CustomStringConvertible {
+    public let rawValue: String
+    public init(rawValue: String) { self.rawValue = rawValue }
+    public var description: String { rawValue }
+
+    public static let pill = ButtonShape(rawValue: "pill")
+    public static let rounded = ButtonShape(rawValue: "rounded")
+    public static let square = ButtonShape(rawValue: "square")
+
+    /// Every value this version knows.
+    public static let allKnown: [ButtonShape] = [.pill, .rounded, .square]
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let raw = try container.decode(String.self)
+        guard Self.allKnown.contains(Self(rawValue: raw)) else {
+                    throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unknown ButtonShape \(raw)")
+                }
+                self = Self(rawValue: raw)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
+}
+
 /// CartOrigin. A value this version does not know reads as `unknown`. New values may be
 /// added: keep a default branch.
 public struct CartOrigin: RawRepresentable, Hashable, Sendable, Codable, CustomStringConvertible {
@@ -326,6 +381,33 @@ public struct Fulfilment: RawRepresentable, Hashable, Sendable, Codable, CustomS
         let container = try decoder.singleValueContainer()
         let raw = try container.decode(String.self)
         self = Self.allKnown.contains(Self(rawValue: raw)) ? Self(rawValue: raw) : .unknown
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
+}
+
+/// HeaderStyle. New values may be added: keep a default branch.
+public struct HeaderStyle: RawRepresentable, Hashable, Sendable, Codable, CustomStringConvertible {
+    public let rawValue: String
+    public init(rawValue: String) { self.rawValue = rawValue }
+    public var description: String { rawValue }
+
+    public static let plain = HeaderStyle(rawValue: "plain")
+    public static let brand = HeaderStyle(rawValue: "brand")
+
+    /// Every value this version knows.
+    public static let allKnown: [HeaderStyle] = [.plain, .brand]
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let raw = try container.decode(String.self)
+        guard Self.allKnown.contains(Self(rawValue: raw)) else {
+                    throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unknown HeaderStyle \(raw)")
+                }
+                self = Self(rawValue: raw)
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -617,6 +699,33 @@ public struct ServiceRequest: RawRepresentable, Hashable, Sendable, Codable, Cus
     }
 }
 
+/// StarterStyle. New values may be added: keep a default branch.
+public struct StarterStyle: RawRepresentable, Hashable, Sendable, Codable, CustomStringConvertible {
+    public let rawValue: String
+    public init(rawValue: String) { self.rawValue = rawValue }
+    public var description: String { rawValue }
+
+    public static let chips = StarterStyle(rawValue: "chips")
+    public static let cards = StarterStyle(rawValue: "cards")
+
+    /// Every value this version knows.
+    public static let allKnown: [StarterStyle] = [.chips, .cards]
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let raw = try container.decode(String.self)
+        guard Self.allKnown.contains(Self(rawValue: raw)) else {
+                    throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unknown StarterStyle \(raw)")
+                }
+                self = Self(rawValue: raw)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
+}
+
 /// ThemeScheme. New values may be added: keep a default branch.
 public struct ThemeScheme: RawRepresentable, Hashable, Sendable, Codable, CustomStringConvertible {
     public let rawValue: String
@@ -707,9 +816,25 @@ public struct Appearance: Codable, Sendable, Equatable {
     public var displayFont: Patch<String>?
     public var uiFont: Patch<String>?
     public var corners: Patch<Corners>?
+    public var headerColor: Patch<String>?
+    public var bubbleColor: Patch<String>?
+    public var buttonColor: Patch<String>?
+    public var cardColor: Patch<String>?
+    public var mutedColor: Patch<String>?
+    public var lineColor: Patch<String>?
+    public var positiveColor: Patch<String>?
+    public var header: Patch<HeaderStyle>?
+    public var bubble: Patch<BubbleStyle>?
+    public var buttons: Patch<ButtonShape>?
+    public var starterStyle: Patch<StarterStyle>?
     public var showHeader: Patch<Bool>?
     public var showLogo: Patch<Bool>?
+    public var showWaiterName: Patch<Bool>?
+    public var showWelcome: Patch<Bool>?
     public var showStarters: Patch<Bool>?
+    public var showQuickReplies: Patch<Bool>?
+    public var showNewChat: Patch<Bool>?
+    public var showCheckout: Patch<Bool>?
     public var showBack: Patch<Bool>?
     public var showPoweredBy: Patch<Bool>?
     public var hideVoice: Patch<Bool>?
@@ -717,7 +842,7 @@ public struct Appearance: Codable, Sendable, Equatable {
     public var hideRetailSuggestions: Patch<Bool>?
     public var hideLoyalty: Patch<Bool>?
 
-    public init(scheme: Patch<Scheme>? = nil, accent: Patch<String>? = nil, accentSecondary: Patch<String>? = nil, paper: Patch<String>? = nil, text: Patch<String>? = nil, displayFont: Patch<String>? = nil, uiFont: Patch<String>? = nil, corners: Patch<Corners>? = nil, showHeader: Patch<Bool>? = nil, showLogo: Patch<Bool>? = nil, showStarters: Patch<Bool>? = nil, showBack: Patch<Bool>? = nil, showPoweredBy: Patch<Bool>? = nil, hideVoice: Patch<Bool>? = nil, hideReviews: Patch<Bool>? = nil, hideRetailSuggestions: Patch<Bool>? = nil, hideLoyalty: Patch<Bool>? = nil) {
+    public init(scheme: Patch<Scheme>? = nil, accent: Patch<String>? = nil, accentSecondary: Patch<String>? = nil, paper: Patch<String>? = nil, text: Patch<String>? = nil, displayFont: Patch<String>? = nil, uiFont: Patch<String>? = nil, corners: Patch<Corners>? = nil, headerColor: Patch<String>? = nil, bubbleColor: Patch<String>? = nil, buttonColor: Patch<String>? = nil, cardColor: Patch<String>? = nil, mutedColor: Patch<String>? = nil, lineColor: Patch<String>? = nil, positiveColor: Patch<String>? = nil, header: Patch<HeaderStyle>? = nil, bubble: Patch<BubbleStyle>? = nil, buttons: Patch<ButtonShape>? = nil, starterStyle: Patch<StarterStyle>? = nil, showHeader: Patch<Bool>? = nil, showLogo: Patch<Bool>? = nil, showWaiterName: Patch<Bool>? = nil, showWelcome: Patch<Bool>? = nil, showStarters: Patch<Bool>? = nil, showQuickReplies: Patch<Bool>? = nil, showNewChat: Patch<Bool>? = nil, showCheckout: Patch<Bool>? = nil, showBack: Patch<Bool>? = nil, showPoweredBy: Patch<Bool>? = nil, hideVoice: Patch<Bool>? = nil, hideReviews: Patch<Bool>? = nil, hideRetailSuggestions: Patch<Bool>? = nil, hideLoyalty: Patch<Bool>? = nil) {
         self.scheme = scheme
         self.accent = accent
         self.accentSecondary = accentSecondary
@@ -726,9 +851,25 @@ public struct Appearance: Codable, Sendable, Equatable {
         self.displayFont = displayFont
         self.uiFont = uiFont
         self.corners = corners
+        self.headerColor = headerColor
+        self.bubbleColor = bubbleColor
+        self.buttonColor = buttonColor
+        self.cardColor = cardColor
+        self.mutedColor = mutedColor
+        self.lineColor = lineColor
+        self.positiveColor = positiveColor
+        self.header = header
+        self.bubble = bubble
+        self.buttons = buttons
+        self.starterStyle = starterStyle
         self.showHeader = showHeader
         self.showLogo = showLogo
+        self.showWaiterName = showWaiterName
+        self.showWelcome = showWelcome
         self.showStarters = showStarters
+        self.showQuickReplies = showQuickReplies
+        self.showNewChat = showNewChat
+        self.showCheckout = showCheckout
         self.showBack = showBack
         self.showPoweredBy = showPoweredBy
         self.hideVoice = hideVoice
@@ -738,7 +879,7 @@ public struct Appearance: Codable, Sendable, Equatable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case scheme, accent, accentSecondary, paper, text, displayFont, uiFont, corners, showHeader, showLogo, showStarters, showBack, showPoweredBy, hideVoice, hideReviews, hideRetailSuggestions, hideLoyalty
+        case scheme, accent, accentSecondary, paper, text, displayFont, uiFont, corners, headerColor, bubbleColor, buttonColor, cardColor, mutedColor, lineColor, positiveColor, header, bubble, buttons, starterStyle, showHeader, showLogo, showWaiterName, showWelcome, showStarters, showQuickReplies, showNewChat, showCheckout, showBack, showPoweredBy, hideVoice, hideReviews, hideRetailSuggestions, hideLoyalty
     }
 
     public init(from decoder: Decoder) throws {
@@ -751,9 +892,25 @@ public struct Appearance: Codable, Sendable, Equatable {
         displayFont = try c.decodePatch(String.self, forKey: .displayFont)
         uiFont = try c.decodePatch(String.self, forKey: .uiFont)
         corners = try c.decodePatch(Corners.self, forKey: .corners)
+        headerColor = try c.decodePatch(String.self, forKey: .headerColor)
+        bubbleColor = try c.decodePatch(String.self, forKey: .bubbleColor)
+        buttonColor = try c.decodePatch(String.self, forKey: .buttonColor)
+        cardColor = try c.decodePatch(String.self, forKey: .cardColor)
+        mutedColor = try c.decodePatch(String.self, forKey: .mutedColor)
+        lineColor = try c.decodePatch(String.self, forKey: .lineColor)
+        positiveColor = try c.decodePatch(String.self, forKey: .positiveColor)
+        header = try c.decodePatch(HeaderStyle.self, forKey: .header)
+        bubble = try c.decodePatch(BubbleStyle.self, forKey: .bubble)
+        buttons = try c.decodePatch(ButtonShape.self, forKey: .buttons)
+        starterStyle = try c.decodePatch(StarterStyle.self, forKey: .starterStyle)
         showHeader = try c.decodePatch(Bool.self, forKey: .showHeader)
         showLogo = try c.decodePatch(Bool.self, forKey: .showLogo)
+        showWaiterName = try c.decodePatch(Bool.self, forKey: .showWaiterName)
+        showWelcome = try c.decodePatch(Bool.self, forKey: .showWelcome)
         showStarters = try c.decodePatch(Bool.self, forKey: .showStarters)
+        showQuickReplies = try c.decodePatch(Bool.self, forKey: .showQuickReplies)
+        showNewChat = try c.decodePatch(Bool.self, forKey: .showNewChat)
+        showCheckout = try c.decodePatch(Bool.self, forKey: .showCheckout)
         showBack = try c.decodePatch(Bool.self, forKey: .showBack)
         showPoweredBy = try c.decodePatch(Bool.self, forKey: .showPoweredBy)
         hideVoice = try c.decodePatch(Bool.self, forKey: .hideVoice)
@@ -772,9 +929,25 @@ public struct Appearance: Codable, Sendable, Equatable {
         try c.encodePatch(displayFont, forKey: .displayFont)
         try c.encodePatch(uiFont, forKey: .uiFont)
         try c.encodePatch(corners, forKey: .corners)
+        try c.encodePatch(headerColor, forKey: .headerColor)
+        try c.encodePatch(bubbleColor, forKey: .bubbleColor)
+        try c.encodePatch(buttonColor, forKey: .buttonColor)
+        try c.encodePatch(cardColor, forKey: .cardColor)
+        try c.encodePatch(mutedColor, forKey: .mutedColor)
+        try c.encodePatch(lineColor, forKey: .lineColor)
+        try c.encodePatch(positiveColor, forKey: .positiveColor)
+        try c.encodePatch(header, forKey: .header)
+        try c.encodePatch(bubble, forKey: .bubble)
+        try c.encodePatch(buttons, forKey: .buttons)
+        try c.encodePatch(starterStyle, forKey: .starterStyle)
         try c.encodePatch(showHeader, forKey: .showHeader)
         try c.encodePatch(showLogo, forKey: .showLogo)
+        try c.encodePatch(showWaiterName, forKey: .showWaiterName)
+        try c.encodePatch(showWelcome, forKey: .showWelcome)
         try c.encodePatch(showStarters, forKey: .showStarters)
+        try c.encodePatch(showQuickReplies, forKey: .showQuickReplies)
+        try c.encodePatch(showNewChat, forKey: .showNewChat)
+        try c.encodePatch(showCheckout, forKey: .showCheckout)
         try c.encodePatch(showBack, forKey: .showBack)
         try c.encodePatch(showPoweredBy, forKey: .showPoweredBy)
         try c.encodePatch(hideVoice, forKey: .hideVoice)
@@ -2845,6 +3018,39 @@ private func checkAppearance(_ value: Appearance, _ path: String, _ out: inout [
     }
     if case let .set(x7)? = value.corners {
         note(&out, "\(path)corners", Corners.allKnown.contains(x7) ? nil : "value", isPatch: true)
+    }
+    if case let .set(x8)? = value.headerColor {
+        note(&out, "\(path)headerColor", textRule(x8, format: hostFormats.f0), isPatch: true)
+    }
+    if case let .set(x9)? = value.bubbleColor {
+        note(&out, "\(path)bubbleColor", textRule(x9, format: hostFormats.f0), isPatch: true)
+    }
+    if case let .set(x10)? = value.buttonColor {
+        note(&out, "\(path)buttonColor", textRule(x10, format: hostFormats.f0), isPatch: true)
+    }
+    if case let .set(x11)? = value.cardColor {
+        note(&out, "\(path)cardColor", textRule(x11, format: hostFormats.f0), isPatch: true)
+    }
+    if case let .set(x12)? = value.mutedColor {
+        note(&out, "\(path)mutedColor", textRule(x12, format: hostFormats.f0), isPatch: true)
+    }
+    if case let .set(x13)? = value.lineColor {
+        note(&out, "\(path)lineColor", textRule(x13, format: hostFormats.f0), isPatch: true)
+    }
+    if case let .set(x14)? = value.positiveColor {
+        note(&out, "\(path)positiveColor", textRule(x14, format: hostFormats.f0), isPatch: true)
+    }
+    if case let .set(x15)? = value.header {
+        note(&out, "\(path)header", HeaderStyle.allKnown.contains(x15) ? nil : "value", isPatch: true)
+    }
+    if case let .set(x16)? = value.bubble {
+        note(&out, "\(path)bubble", BubbleStyle.allKnown.contains(x16) ? nil : "value", isPatch: true)
+    }
+    if case let .set(x17)? = value.buttons {
+        note(&out, "\(path)buttons", ButtonShape.allKnown.contains(x17) ? nil : "value", isPatch: true)
+    }
+    if case let .set(x18)? = value.starterStyle {
+        note(&out, "\(path)starterStyle", StarterStyle.allKnown.contains(x18) ? nil : "value", isPatch: true)
     }
 }
 

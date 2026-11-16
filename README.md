@@ -15,12 +15,12 @@ iOS 16 or later, Xcode 16 or later (Swift 6). No dependencies.
 ## Install
 
 **Xcode:** File > Add Package Dependencies, paste `https://github.com/abiroot/tamr-waiter-ios`, set the
-Dependency Rule to **Up to Next Major Version** from `1.0.0`, and add `TamrWaiter` to your app's target.
+Dependency Rule to **Up to Next Major Version** from `1.2.0`, and add `TamrWaiter` to your app's target.
 
 **Package.swift:**
 
 ```swift
-.package(url: "https://github.com/abiroot/tamr-waiter-ios", from: "1.0.0"),
+.package(url: "https://github.com/abiroot/tamr-waiter-ios", from: "1.2.0"),
 // and in your target's dependencies:
 .product(name: "TamrWaiter", package: "tamr-waiter-ios"),
 ```
@@ -101,7 +101,7 @@ Two controllers are two separate chats.
 | `onCartAdd`, `onCartUpdate`, `onCartRemove` | Answer the waiter's cart proposals, per line, within 15 seconds |
 | `on(_:_:)` | `ready`, `state`, `checkout`, `open_dish`, `order.placed`, `order.cancelled`, `payment.completed`, `review.submitted`, `booking.made`, `booking.changed`, `waiter.called`, `close`, `log`… Returns the function that removes it |
 | `setLocale`, `setAppearance`, `setText`, `setTheme`, `setContext`, `setStarters`, `setRestrictions`, `setGoal` | Kept and sent again whenever the page loads again |
-| `sendCart(_:)`, `sendMessage(_:)`, `newChat()`, `clearIdentity()` | One-off messages, held until the chat is ready |
+| `sendCart(_:)`, `sendMessage(_:)`, `newChat()`, `clearIdentity()` | One-off messages, held until the chat is ready. With a key in guest mode, `clearIdentity()` also starts a new guest at once, so the next person on a shared phone never sees the last one's chat. |
 | `requestReview(orderId:dishes:)` | After an order is served: the chat asks the diner to rate each dish (1 to 5 stars), held until the chat is ready. The dishes (1 to 30) are named by `dishId` or `externalId`, with the title the diner saw. The order must be one your backend sent (`POST /api/v1/sdk/orders`) for this diner; `review.submitted` says what they rated |
 
 These names are the SDKs' shared shape (the Web SDK's README sets it out). The page's messages are

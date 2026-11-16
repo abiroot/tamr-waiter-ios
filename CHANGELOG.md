@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.2.0
+
+- More of the chat's look for your app, as new fields of the appearance (`setAppearance`, and `appearance` on `TamrWaiterController`):
+  - the colours of its parts: `headerColor`, `bubbleColor` (the diner's own messages), `buttonColor`
+    (Send, Checkout and the other main buttons), `cardColor`, `mutedColor`, `lineColor` and `positiveColor`
+    ("Added", "In your cart"). A filled part gets black or white words, whichever reads; muted and positive
+    words are nudged until they read on your paper;
+  - styles: `header` (plain or brand, the bar filled with your accent), `bubble` (soft or brand), `buttons`
+    (pill, rounded or square) and `starterStyle` (chips or cards);
+  - switches: `showWaiterName`, `showWelcome`, `showQuickReplies`, `showNewChat` and `showCheckout` (hide
+    Checkout on the cart card when your app has its own).
+  The restaurant can set each one in Settings > Waiter in your app; your app's value wins while "Allow the app
+  to customise" is on. All additive.
+- `showPoweredBy` is ignored: "Powered by Tamr" always shows, whatever an app or a restaurant sets.
+
 ## 1.1.0
 
 - Post-meal reviews (#453): `requestReview(orderId:dishes:)` asks the diner, after an order is served, to rate each of its
@@ -43,10 +58,11 @@
   `debug: true` still logs, but Safari's Web Inspector can't reach it, since it would expose the diner's session.
 - `order.cancelled` (#743): the page tells your app when an order it heard placed ends unserved (declined,
   cancelled or expired), with `orderId` and `status`. Also a webhook. Additive.
-- An app built with Xcode 27 no longer crashes at launch on iOS 18 and older (found on the iOS 18.4
-  simulator in #732's device run): the shell sent its messages through the Swift overlay's
-  `callAsyncJavaScript`, which the newer SDK links from `libswiftWebKit.dylib`, a library iOS before 26
-  doesn't have. It now calls WebKit's own method. 1.0.0 makes the same call.
+- The shell no longer links `libswiftWebKit.dylib`: it sent its messages through the Swift overlay's
+  `callAsyncJavaScript`, and now calls WebKit's own method. The iOS 18.4 and 18.5 simulator runtimes lack
+  that library at the path the app looks for, so an app linking it died at launch there (found in #732's
+  device run). Phones and the other simulators have it (#768); 1.0.0 apps were affected on those two
+  simulators only.
 - `order.placed` can carry `test: true` (#742): a test key's pickup, checked and priced but never sent to the
   restaurant. Additive: the field is forwarded as it comes.
 
